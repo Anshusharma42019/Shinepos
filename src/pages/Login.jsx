@@ -38,7 +38,12 @@ const Login = () => {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/dashboard');
+        
+        if (data.user.role === 'RESTAURANT_ADMIN') {
+          navigate('/restaurant-dashboard');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
         setError(data.message || 'Login failed');
       }

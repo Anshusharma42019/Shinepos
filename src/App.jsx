@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import RestaurantDashboard from './pages/RestaurantDashboard';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<SuperAdminDashboard />} />
+          <Route path="/restaurant-dashboard" element={<RestaurantDashboard />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>
