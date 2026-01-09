@@ -12,9 +12,15 @@ const EditItem = ({ item, onSuccess, onBack }) => {
     timeToPrepare: '',
     foodType: 'veg'
   });
+  const [availableAddons, setAvailableAddons] = useState([]);
+  const [availableVariations, setAvailableVariations] = useState([]);
+  const [selectedAddons, setSelectedAddons] = useState([]);
+  const [selectedVariations, setSelectedVariations] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    fetchAddons();
+    fetchVariations();
     if (item) {
       setFormData({
         itemName: item.itemName || '',
@@ -25,8 +31,40 @@ const EditItem = ({ item, onSuccess, onBack }) => {
         timeToPrepare: item.timeToPrepare || '',
         foodType: item.foodType || 'veg'
       });
+      setSelectedAddons(item.addon ? item.addon.map(a => (typeof a === 'object' ? a._id : a).toString()) : []);
+      setSelectedVariations(item.variation ? item.variation.map(v => (typeof v === 'object' ? v._id : v).toString()) : []);
     }
   }, [item]);
+
+  const fetchAddons = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/addon/all/addon`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAvailableAddons(data.addons || []);
+      }
+    } catch (error) {
+      console.error('Error fetching addons:', error);
+    }
+  };
+
+  const fetchVariations = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/variation/all/variation`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAvailableVariations(data.variations || []);
+      }
+    } catch (error) {
+      console.error('Error fetching variations:', error);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -56,7 +94,9 @@ const EditItem = ({ item, onSuccess, onBack }) => {
           imageUrl: formData.imageUrl,
           videoUrl: formData.videoUrl,
           timeToPrepare: Number(formData.timeToPrepare),
-          foodType: formData.foodType
+          foodType: formData.foodType,
+          addon: selectedAddons,
+          variation: selectedVariations
         })
       });
 
@@ -180,6 +220,66 @@ const EditItem = ({ item, onSuccess, onBack }) => {
             <option value="veg">Vegetarian</option>
             <option value="nonveg">Non-Vegetarian</option>
           </select>
+        </div>
+
+        {/* Addons Section */}
+        <div className="border-t pt-6">
+          <h3 className="text-lg font-semibold mb-4">Select Addons</h3>
+          {availableAddons.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {availableAddons.map(addon => (
+                <div key={addon._id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                  <input
+                    type="checkbox"
+                    id={`addon-${addon._id}`}
+                    checked={selectedAddons.includes(addon._id.toString())}
+                    onChange={(e) => handleAddonChange(addon._id.toString(), e.target.checked)}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <label htmlFor={`addon-${addon._id}`} className="flex-1 cursor-pointer">
+                    <div className="font-medium">{addon.name}</div>
+                    <div className="text-sm text-gray-600">₹{addon.price}</div>
+                    {addon.description && (
+                      <div className="text-xs text-gray-500">{addon.description}</div>
+                    )}
+                  </label>
+                  <span className={`px-2 py-1 rounded text-xs ${
+                    addon.veg ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {addon.veg ? '🟢' : '🔴'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500">No addons available.</p>
+          )}
+        </div>
+
+        {/* Variations Section */}
+        <div className="border-t pt-6">
+          <h3 className="text-lg font-semibold mb-4">Select Variations</h3>
+          {availableVariations.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {availableVariations.map(variation => (
+                <div key={variation._id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                  <input
+                    type="checkbox"
+                    id={`variation-${variation._id}`}
+                    checked={selectedVariations.includes(variation._id.toString())}
+                    onChange={(e) => handleVariationChange(variation._id.toString(), e.target.checked)}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <label htmlFor={`variation-${variation._id}`} className="flex-1 cursor-pointer">
+                    <div className="font-medium">{variation.name}</div>
+                    <div className="text-sm text-gray-600">₹{variation.price}</div>
+                  </label>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500">No variations available.</p>
+          )}
         </div>
 
         <button

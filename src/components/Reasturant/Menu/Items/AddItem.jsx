@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCategory } from '../Category/hooks/useCategory';
 
 const AddItem = ({ onSuccess, onBack }) => {
@@ -6,14 +6,52 @@ const AddItem = ({ onSuccess, onBack }) => {
   const [formData, setFormData] = useState({
     itemName: '',
     categoryID: '',
-    price: '',
-    description: '',
     status: 'active',
     imageUrl: '',
+    videoUrl: '',
     timeToPrepare: '',
     foodType: 'veg'
   });
+  const [availableAddons, setAvailableAddons] = useState([]);
+  const [availableVariations, setAvailableVariations] = useState([]);
+  const [selectedAddons, setSelectedAddons] = useState([]);
+  const [selectedVariations, setSelectedVariations] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchAddons();
+    fetchVariations();
+  }, []);
+
+  const fetchAddons = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/addon/all/addon`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAvailableAddons(data.addons || []);
+      }
+    } catch (error) {
+      console.error('Error fetching addons:', error);
+    }
+  };
+
+  const fetchVariations = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/variation/all/variation`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAvailableVariations(data.variations || []);
+      }
+    } catch (error) {
+      console.error('Error fetching variations:', error);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -21,6 +59,22 @@ const AddItem = ({ onSuccess, onBack }) => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleAddonChange = (addonId, checked) => {
+    if (checked) {
+      setSelectedAddons([...selectedAddons, addonId]);
+    } else {
+      setSelectedAddons(selectedAddons.filter(id => id !== addonId));
+    }
+  };
+
+  const handleVariationChange = (variationId, checked) => {
+    if (checked) {
+      setSelectedVariations([...selectedVariations, variationId]);
+    } else {
+      setSelectedVariations(selectedVariations.filter(id => id !== variationId));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -41,8 +95,11 @@ const AddItem = ({ onSuccess, onBack }) => {
           categoryID: formData.categoryID,
           status: formData.status,
           imageUrl: formData.imageUrl,
+          videoUrl: formData.videoUrl,
           timeToPrepare: Number(formData.timeToPrepare),
-          foodType: formData.foodType
+          foodType: formData.foodType,
+          addon: selectedAddons,
+          variation: selectedVariations
         })
       });
 
@@ -51,13 +108,14 @@ const AddItem = ({ onSuccess, onBack }) => {
         setFormData({
           itemName: '',
           categoryID: '',
-          price: '',
-          description: '',
           status: 'active',
           imageUrl: '',
+          videoUrl: '',
           timeToPrepare: '',
           foodType: 'veg'
         });
+        setSelectedAddons([]);
+        setSelectedVariations([]);
         if (onSuccess) onSuccess();
       } else {
         const data = await response.json();
@@ -115,32 +173,6 @@ const AddItem = ({ onSuccess, onBack }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Price</label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleInputChange}
-            className="w-full p-3 border rounded-lg"
-            min="0"
-            step="0.01"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">Description</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            className="w-full p-3 border rounded-lg"
-            rows="3"
-            required
-          />
-        </div>
-
-        <div>
           <label className="block text-sm font-medium mb-2">Status</label>
           <select
             name="status"
@@ -150,6 +182,7 @@ const AddItem = ({ onSuccess, onBack }) => {
           >
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
+            <option value="out-of-stock">Out of Stock</option>
           </select>
         </div>
 
@@ -162,6 +195,18 @@ const AddItem = ({ onSuccess, onBack }) => {
             onChange={handleInputChange}
             className="w-full p-3 border rounded-lg"
             placeholder="https://example.com/image.jpg"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Video URL</label>
+          <input
+            type="url"
+            name="videoUrl"
+            value={formData.videoUrl}
+            onChange={handleInputChange}
+            className="w-full p-3 border rounded-lg"
+            placeholder="https://example.com/video.mp4"
           />
         </div>
 
@@ -189,6 +234,66 @@ const AddItem = ({ onSuccess, onBack }) => {
             <option value="veg">Vegetarian</option>
             <option value="nonveg">Non-Vegetarian</option>
           </select>
+        </div>
+
+        {/* Addons Section */}
+        <div className="border-t pt-6">
+          <h3 className="text-lg font-semibold mb-4">Select Addons</h3>
+          {availableAddons.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {availableAddons.map(addon => (
+                <div key={addon._id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                  <input
+                    type="checkbox"
+                    id={`addon-${addon._id}`}
+                    checked={selectedAddons.includes(addon._id)}
+                    onChange={(e) => handleAddonChange(addon._id, e.target.checked)}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <label htmlFor={`addon-${addon._id}`} className="flex-1 cursor-pointer">
+                    <div className="font-medium">{addon.name}</div>
+                    <div className="text-sm text-gray-600">₹{addon.price}</div>
+                    {addon.description && (
+                      <div className="text-xs text-gray-500">{addon.description}</div>
+                    )}
+                  </label>
+                  <span className={`px-2 py-1 rounded text-xs ${
+                    addon.veg ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {addon.veg ? '🟢' : '🔴'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500">No addons available. Create addons first.</p>
+          )}
+        </div>
+
+        {/* Variations Section */}
+        <div className="border-t pt-6">
+          <h3 className="text-lg font-semibold mb-4">Select Variations</h3>
+          {availableVariations.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {availableVariations.map(variation => (
+                <div key={variation._id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                  <input
+                    type="checkbox"
+                    id={`variation-${variation._id}`}
+                    checked={selectedVariations.includes(variation._id)}
+                    onChange={(e) => handleVariationChange(variation._id, e.target.checked)}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <label htmlFor={`variation-${variation._id}`} className="flex-1 cursor-pointer">
+                    <div className="font-medium">{variation.name}</div>
+                    <div className="text-sm text-gray-600">₹{variation.price}</div>
+                  </label>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500">No variations available. Create variations first.</p>
+          )}
         </div>
 
         <button

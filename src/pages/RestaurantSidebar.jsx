@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuItemsOpen, setMenuItemsOpen] = useState(false);
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: 'M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z' },
@@ -12,19 +13,25 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
 
   const menuSubItems = [
     { id: 'category', label: 'Category' },
-    { id: 'menu', label: 'Menu Items' }
+    { id: 'menu', label: 'Menu Items', hasSubItems: true }
+  ];
+
+  const menuItemsSubItems = [
+    { id: 'menu', label: 'Items' },
+    { id: 'addons', label: 'Addons' },
+    { id: 'variations', label: 'Variations' }
   ];
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   return (
-    <div className="w-64 bg-gray-900 text-white min-h-screen p-4 flex flex-col">
+    <div className="w-64 bg-gray-900 text-white h-screen p-4 flex flex-col overflow-y-auto">
       <div className="mb-8">
         <h2 className="text-2xl font-bold">Restaurant</h2>
         <p className="text-sm text-gray-400 mt-1">{user.name || 'Admin'}</p>
       </div>
 
-      <nav className="flex-1">
+      <nav className="flex-1 overflow-y-auto">
         <ul className="space-y-2">
           {menuItems.map((item) => (
             <li key={item.id}>
@@ -63,16 +70,48 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
               <ul className="ml-8 mt-2 space-y-1">
                 {menuSubItems.map((subItem) => (
                   <li key={subItem.id}>
-                    <button
-                      onClick={() => setActiveTab(subItem.id)}
-                      className={`w-full text-left p-2 rounded-lg text-sm ${
-                        activeTab === subItem.id
-                          ? 'bg-indigo-600 hover:bg-indigo-700'
-                          : 'hover:bg-gray-800'
-                      }`}
-                    >
-                      {subItem.label}
-                    </button>
+                    {subItem.hasSubItems ? (
+                      <>
+                        <button
+                          onClick={() => setMenuItemsOpen(!menuItemsOpen)}
+                          className="w-full flex items-center justify-between p-2 rounded-lg text-sm hover:bg-gray-800"
+                        >
+                          <span>{subItem.label}</span>
+                          <svg className={`w-3 h-3 transition-transform ${menuItemsOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                        {menuItemsOpen && (
+                          <ul className="ml-4 mt-1 space-y-1">
+                            {menuItemsSubItems.map((menuSubItem) => (
+                              <li key={menuSubItem.id}>
+                                <button
+                                  onClick={() => setActiveTab(menuSubItem.id)}
+                                  className={`w-full text-left p-2 rounded-lg text-xs ${
+                                    activeTab === menuSubItem.id
+                                      ? 'bg-indigo-600 hover:bg-indigo-700'
+                                      : 'hover:bg-gray-800'
+                                  }`}
+                                >
+                                  {menuSubItem.label}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </>
+                    ) : (
+                      <button
+                        onClick={() => setActiveTab(subItem.id)}
+                        className={`w-full text-left p-2 rounded-lg text-sm ${
+                          activeTab === subItem.id
+                            ? 'bg-indigo-600 hover:bg-indigo-700'
+                            : 'hover:bg-gray-800'
+                        }`}
+                      >
+                        {subItem.label}
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -81,7 +120,7 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
         </ul>
       </nav>
       
-      <div className="mt-auto">
+      <div className="mt-4 pt-4 border-t border-gray-700">
         <button
           onClick={onLogout}
           className="w-full flex items-center p-3 rounded-lg hover:bg-gray-800 text-red-400"

@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import RestaurantSidebar from './RestaurantSidebar';
 import RestaurantDashboardHome from '../components/Reasturant/Dashboard/Dashboard';
 import Category from '../components/Reasturant/Menu/Category/MainCategorys';
-import MainItems from '../components/Reasturant/Menu/Items/MainItems';
+import MainItems from '../components/Reasturant/Menu/Items/menu/MainItems';
+import AddonList from '../components/Reasturant/Menu/Items/menu/AddonList';
+import VariationList from '../components/Reasturant/Menu/Items/menu/VariationList';
 
 const RestaurantDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -24,6 +26,10 @@ const RestaurantDashboard = () => {
         return <Category />;
       case 'menu':
         return <MainItems />;
+      case 'addons':
+        return <AddonList />;
+      case 'variations':
+        return <VariationList />;
       case 'orders':
         return <div className="p-6"><h2 className="text-2xl font-bold">Orders</h2></div>;
       case 'staff':

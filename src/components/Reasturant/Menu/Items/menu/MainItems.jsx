@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
-import AddItem from './AddItem';
-import ItemList from './ItemList';
-import EditItem from './EditItem';
+import AddItem from '../AddItem';
+import ItemList from '../ItemList';
+import EditItem from '../EditItem';
+import AddAddon from './AddAddon';
+import AddonList from './AddonList';
+import AddVariation from './AddVariation';
+import VariationList from './VariationList';
 
 const MainItems = () => {
   const [view, setView] = useState('list');
@@ -28,14 +32,16 @@ const MainItems = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">Menu Items</h1>
-        {view === 'list' && (
-          <button
-            onClick={() => setView('add')}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-          >
-            + Add Item
-          </button>
-        )}
+        <div className="flex gap-2">
+          {view === 'list' && (
+            <button
+              onClick={() => setView('add')}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              + Add Item
+            </button>
+          )}
+        </div>
       </div>
       
       {view === 'add' && (
