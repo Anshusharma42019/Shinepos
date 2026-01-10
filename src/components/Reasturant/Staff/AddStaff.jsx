@@ -156,10 +156,10 @@ const AddStaff = ({ onSuccess, onBack }) => {
               required
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="CASHIER">Cashier</option>
-              <option value="KITCHEN_STAFF">Kitchen Staff</option>
               <option value="MANAGER">Manager</option>
-              <option value="RESTAURANT_ADMIN">Restaurant Admin</option>
+              <option value="CHEF">Chef</option>
+              <option value="WAITER">Waiter</option>
+              <option value="CASHIER">Cashier</option>
             </select>
           </div>
 

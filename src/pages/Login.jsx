@@ -41,6 +41,8 @@ const Login = () => {
           navigate('/super-admin', { replace: true });
         } else if (data.user.role === 'RESTAURANT_ADMIN') {
           navigate('/restaurant-dashboard', { replace: true });
+        } else if (['MANAGER', 'CHEF', 'WAITER', 'CASHIER'].includes(data.user.role)) {
+          navigate('/restaurant-dashboard', { replace: true });
         } else {
           navigate('/dashboard', { replace: true });
         }
