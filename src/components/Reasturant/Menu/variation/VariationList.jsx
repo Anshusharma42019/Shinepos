@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import AddVariation from './AddVariation';
 
-const VariationList = ({ onEdit }) => {
+const VariationList = ({ onAdd, onEdit }) => {
   const [variations, setVariations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState('list');
 
   useEffect(() => {
     fetchVariations();
@@ -52,24 +51,15 @@ const VariationList = ({ onEdit }) => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Variations</h2>
-        {view === 'list' && (
-          <button
-            onClick={() => setView('add')}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-          >
-            + Add Variation
-          </button>
-        )}
+        <button
+          onClick={onAdd}
+          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+        >
+          + Add Variation
+        </button>
       </div>
       
-      {view === 'add' && (
-        <div className="mb-6">
-          <AddVariation onSuccess={() => { setView('list'); fetchVariations(); }} onBack={() => setView('list')} />
-        </div>
-      )}
-      
-      {view === 'list' && (
-        <div className="grid gap-4">
+      <div className="grid gap-4">
         {variations.map(variation => (
           <div key={variation._id} className="bg-white p-4 rounded-lg shadow-md border">
             <div className="flex justify-between items-start">
@@ -106,9 +96,8 @@ const VariationList = ({ onEdit }) => {
           </div>
         ))}
         </div>
-      )}
       
-      {variations.length === 0 && view === 'list' && (
+      {variations.length === 0 && (
         <div className="text-center py-8 text-gray-500">
           <p>No variations found. Add some variations to get started.</p>
         </div>

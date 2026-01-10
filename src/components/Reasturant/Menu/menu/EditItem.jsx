@@ -74,6 +74,22 @@ const EditItem = ({ item, onSuccess, onBack }) => {
     }));
   };
 
+  const handleAddonChange = (addonId, isChecked) => {
+    if (isChecked) {
+      setSelectedAddons(prev => [...prev, addonId]);
+    } else {
+      setSelectedAddons(prev => prev.filter(id => id !== addonId));
+    }
+  };
+
+  const handleVariationChange = (variationId, isChecked) => {
+    if (isChecked) {
+      setSelectedVariations(prev => [...prev, variationId]);
+    } else {
+      setSelectedVariations(prev => prev.filter(id => id !== variationId));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);

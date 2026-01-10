@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import RestaurantSidebar from './RestaurantSidebar';
 import RestaurantDashboardHome from '../components/Reasturant/Dashboard/Dashboard';
 import Category from '../components/Reasturant/Menu/Category/MainCategorys';
-import MainItems from '../components/Reasturant/Menu/Items/menu/MainItems';
-import AddonList from '../components/Reasturant/Menu/Items/menu/AddonList';
-import VariationList from '../components/Reasturant/Menu/Items/menu/VariationList';
+import Menu from '../components/Reasturant/Menu/menu/Menu';
+import Addon from '../components/Reasturant/Menu/addon/Addon';
+import Variation from '../components/Reasturant/Menu/variation/Variation';
+import StaffList from '../components/Reasturant/Staff/Staff';
 
 const RestaurantDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -25,15 +26,15 @@ const RestaurantDashboard = () => {
       case 'category':
         return <Category />;
       case 'menu':
-        return <MainItems />;
+        return <Menu />;
       case 'addons':
-        return <AddonList />;
+        return <Addon />;
       case 'variations':
-        return <VariationList />;
+        return <Variation />;
       case 'orders':
         return <div className="p-6"><h2 className="text-2xl font-bold">Orders</h2></div>;
       case 'staff':
-        return <div className="p-6"><h2 className="text-2xl font-bold">Staff Management</h2></div>;
+        return <StaffList />;
       case 'settings':
         return <div className="p-6"><h2 className="text-2xl font-bold">Settings</h2></div>;
       default:

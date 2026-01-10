@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import AddAddon from './AddAddon';
 
-const AddonList = ({ onEdit }) => {
+const AddonList = ({ onAdd }) => {
   const [addons, setAddons] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState('list');
 
   useEffect(() => {
     fetchAddons();
@@ -52,24 +51,15 @@ const AddonList = ({ onEdit }) => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Addons</h2>
-        {view === 'list' && (
-          <button
-            onClick={() => setView('add')}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-          >
-            + Add Addon
-          </button>
-        )}
+        <button
+          onClick={onAdd}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+        >
+          + Add Addon
+        </button>
       </div>
       
-      {view === 'add' && (
-        <div className="mb-6">
-          <AddAddon onSuccess={() => { setView('list'); fetchAddons(); }} onBack={() => setView('list')} />
-        </div>
-      )}
-      
-      {view === 'list' && (
-        <div className="grid gap-4">
+      <div className="grid gap-4">
         {addons.map(addon => (
           <div key={addon._id} className="bg-white p-4 rounded-lg shadow-md border">
             <div className="flex justify-between items-start">
@@ -117,9 +107,8 @@ const AddonList = ({ onEdit }) => {
           </div>
         ))}
         </div>
-      )}
       
-      {addons.length === 0 && view === 'list' && (
+      {addons.length === 0 && (
         <div className="text-center py-8 text-gray-500">
           <p>No addons found. Add some addons to get started.</p>
         </div>

@@ -13,11 +13,7 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
 
   const menuSubItems = [
     { id: 'category', label: 'Category' },
-    { id: 'menu', label: 'Menu Items', hasSubItems: true }
-  ];
-
-  const menuItemsSubItems = [
-    { id: 'menu', label: 'Items' },
+    { id: 'menu', label: 'Menu Items' },
     { id: 'addons', label: 'Addons' },
     { id: 'variations', label: 'Variations' }
   ];
@@ -70,48 +66,16 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
               <ul className="ml-8 mt-2 space-y-1">
                 {menuSubItems.map((subItem) => (
                   <li key={subItem.id}>
-                    {subItem.hasSubItems ? (
-                      <>
-                        <button
-                          onClick={() => setMenuItemsOpen(!menuItemsOpen)}
-                          className="w-full flex items-center justify-between p-2 rounded-lg text-sm hover:bg-gray-800"
-                        >
-                          <span>{subItem.label}</span>
-                          <svg className={`w-3 h-3 transition-transform ${menuItemsOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                        {menuItemsOpen && (
-                          <ul className="ml-4 mt-1 space-y-1">
-                            {menuItemsSubItems.map((menuSubItem) => (
-                              <li key={menuSubItem.id}>
-                                <button
-                                  onClick={() => setActiveTab(menuSubItem.id)}
-                                  className={`w-full text-left p-2 rounded-lg text-xs ${
-                                    activeTab === menuSubItem.id
-                                      ? 'bg-indigo-600 hover:bg-indigo-700'
-                                      : 'hover:bg-gray-800'
-                                  }`}
-                                >
-                                  {menuSubItem.label}
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </>
-                    ) : (
-                      <button
-                        onClick={() => setActiveTab(subItem.id)}
-                        className={`w-full text-left p-2 rounded-lg text-sm ${
-                          activeTab === subItem.id
-                            ? 'bg-indigo-600 hover:bg-indigo-700'
-                            : 'hover:bg-gray-800'
-                        }`}
-                      >
-                        {subItem.label}
-                      </button>
-                    )}
+                    <button
+                      onClick={() => setActiveTab(subItem.id)}
+                      className={`w-full text-left p-2 rounded-lg text-sm ${
+                        activeTab === subItem.id
+                          ? 'bg-indigo-600 hover:bg-indigo-700'
+                          : 'hover:bg-gray-800'
+                      }`}
+                    >
+                      {subItem.label}
+                    </button>
                   </li>
                 ))}
               </ul>
