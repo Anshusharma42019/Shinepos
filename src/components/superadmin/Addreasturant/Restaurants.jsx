@@ -1,9 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RestaurantAdd from './reasturantadd';
 import RestaurantList from './reasturantlist';
 
 const Restaurants = () => {
   const [showAddPage, setShowAddPage] = useState(false);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setShowAddPage(false);
+    };
+
+    if (showAddPage) {
+      window.history.pushState({ addPage: true }, '');
+      window.addEventListener('popstate', handlePopState);
+    }
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [showAddPage]);
 
   if (showAddPage) {
     return (

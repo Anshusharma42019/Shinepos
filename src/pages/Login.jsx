@@ -38,11 +38,11 @@ const Login = () => {
         localStorage.setItem('user', JSON.stringify(data.user));
         
         if (data.user.role === 'SUPER_ADMIN') {
-          navigate('/super-admin');
+          navigate('/super-admin', { replace: true });
         } else if (data.user.role === 'RESTAURANT_ADMIN') {
-          navigate('/restaurant-dashboard');
+          navigate('/restaurant-dashboard', { replace: true });
         } else {
-          navigate('/dashboard');
+          navigate('/dashboard', { replace: true });
         }
       } else {
         setError(data.error || 'Login failed');
