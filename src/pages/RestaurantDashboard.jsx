@@ -7,8 +7,8 @@ import Menu from '../components/Reasturant/Menu/menu/Menu';
 import Addon from '../components/Reasturant/Menu/addon/Addon';
 import Variation from '../components/Reasturant/Menu/variation/Variation';
 import StaffList from '../components/Reasturant/Staff/Staff';
-import Order from '../components/Reasturant/Order/Order';
-import KOT from '../components/Reasturant/Order/KOT';
+import Order from '../components/Reasturant/Order/Orders/Order';
+import KOT from '../components/Reasturant/Order/KOT/KOT';
 
 const RestaurantDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
