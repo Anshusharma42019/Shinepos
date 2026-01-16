@@ -9,6 +9,7 @@ import Variation from '../components/Reasturant/Menu/variation/Variation';
 import StaffList from '../components/Reasturant/Staff/Staff';
 import Order from '../components/Reasturant/Order/Orders/Order';
 import KOT from '../components/Reasturant/Order/KOT/KOT';
+import Inventory from '../components/Reasturant/Inventory/Inventory';
 import SubscriptionPlans from '../components/Reasturant/Subscription/SubscriptionPlans';
 
 const RestaurantDashboard = () => {
