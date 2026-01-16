@@ -33,10 +33,11 @@ const SubscriptionPlans = () => {
     try {
       const user = JSON.parse(localStorage.getItem('user'));
       const token = localStorage.getItem('token');
-      if (!user?.restaurantId) return;
+      const restaurantId = user?.id; // For restaurant admin, id is the restaurant ID
+      if (!restaurantId) return;
       
       const response = await axios.get(
-        `${API_URL}/api/subscription-plans/status/${user.restaurantId}`,
+        `${API_URL}/api/subscription-plans/status/${restaurantId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCurrentPlan(response.data.subscription);
@@ -52,12 +53,12 @@ const SubscriptionPlans = () => {
     try {
       const user = JSON.parse(localStorage.getItem('user'));
       const token = localStorage.getItem('token');
+      const restaurantId = user?.id; // For restaurant admin, id is the restaurant ID
       
       await axios.post(
         `${API_URL}/api/subscription-plans/subscribe`,
         {
-          restaurantId: user.restaurantId,
-          planName,
+          restaurantId,
           paymentMethod: 'card',
           transactionId: `TXN-${Date.now()}`
         },
@@ -104,16 +105,16 @@ const SubscriptionPlans = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         {plans.map((plan) => (
-          <div key={plan._id} className="bg-white rounded-lg shadow-lg p-6 border-2 border-gray-200 hover:border-indigo-500 transition">
+          <div key={plan.name} className="bg-white rounded-lg shadow-lg p-6 border-2 border-gray-200 hover:border-indigo-500 transition max-w-md mx-auto">
             <h3 className="text-2xl font-bold mb-2">{plan.displayName}</h3>
             <div className="text-3xl font-bold text-indigo-600 mb-4">
               ₹{plan.price}
               <span className="text-sm text-gray-500">/month</span>
             </div>
             <ul className="space-y-2 mb-6">
-              {plan.features.map((feature, index) => (
+              {plan.features?.map((feature, index) => (
                 <li key={index} className="flex items-start">
                   <FiCheck className="text-green-500 mr-2 mt-1" />
                   <span className="text-sm">{feature}</span>
