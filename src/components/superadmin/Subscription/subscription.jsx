@@ -4,10 +4,21 @@ import { FiEdit2 } from 'react-icons/fi';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-const CountdownTimer = ({ endDate, paymentStatus }) => {
+const CountdownTimer = ({ endDate, paymentStatus, pausedTimeRemaining }) => {
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
+    if (paymentStatus === 'cancelled' && pausedTimeRemaining) {
+      const distance = pausedTimeRemaining;
+      setCountdown({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000)
+      });
+      return;
+    }
+
     if (!endDate || paymentStatus !== 'paid') return;
 
     const calculateCountdown = () => {
@@ -27,7 +38,6 @@ const CountdownTimer = ({ endDate, paymentStatus }) => {
       };
     };
 
-    // Set initial value immediately
     setCountdown(calculateCountdown());
 
     const timer = setInterval(() => {
@@ -35,16 +45,19 @@ const CountdownTimer = ({ endDate, paymentStatus }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [endDate, paymentStatus]);
+  }, [endDate, paymentStatus, pausedTimeRemaining]);
 
-  if (paymentStatus !== 'paid') return <span className="text-gray-500">-</span>;
+  if (!endDate && !pausedTimeRemaining) return <span className="text-gray-500">-</span>;
+
+  const color = paymentStatus === 'paid' ? 'text-indigo-600' : 'text-orange-600';
 
   return (
     <div className="text-xs">
-      <span className="font-semibold text-indigo-600">{countdown.days}d</span> :
-      <span className="font-semibold text-indigo-600"> {countdown.hours}h</span> :
-      <span className="font-semibold text-indigo-600"> {countdown.minutes}m</span> :
-      <span className="font-semibold text-indigo-600"> {countdown.seconds}s</span>
+      <span className={`font-semibold ${color}`}>{countdown.days}d</span> :
+      <span className={`font-semibold ${color}`}> {countdown.hours}h</span> :
+      <span className={`font-semibold ${color}`}> {countdown.minutes}m</span> :
+      <span className={`font-semibold ${color}`}> {countdown.seconds}s</span>
+      {paymentStatus === 'cancelled' && <span className="text-orange-600 ml-1">(Paused)</span>}
     </div>
   );
 };
@@ -203,6 +216,7 @@ const Subscription = () => {
                   <CountdownTimer 
                     endDate={restaurant.subscriptionEndDate} 
                     paymentStatus={restaurant.paymentStatus}
+                    pausedTimeRemaining={restaurant.pausedTimeRemaining}
                   />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -223,12 +237,19 @@ const Subscription = () => {
                       >
                         Cancel
                       </button>
-                    ) : (
+                    ) : restaurant.paymentStatus === 'expired' || restaurant.paymentStatus === 'cancelled' ? (
                       <button
                         onClick={() => handleRenew(restaurant._id, restaurant.restaurantName)}
                         className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
                       >
                         Renew
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleRenew(restaurant._id, restaurant.restaurantName)}
+                        className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                      >
+                        Subscribe
                       </button>
                     )}
                   </div>
