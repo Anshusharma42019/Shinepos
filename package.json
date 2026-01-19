@@ -18,7 +18,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npx vite build",
+    "build": "vite build --mode production",
     "preview": "vite preview"
   },
   "engines": {
