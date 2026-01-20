@@ -37,7 +37,7 @@ export const useCreateOrder = (onCreateOrder) => {
   const fetchTables = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/api/tables/tables`, {
+      const response = await axios.get(`${API_BASE_URL}/api/table/tables`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setTables(response.data.tables || []);
