@@ -14,7 +14,7 @@ const SuperAdminDashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    navigate('/login');
+    navigate('/admin-login');
   };
 
   useEffect(() => {
