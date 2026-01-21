@@ -32,6 +32,8 @@ const OrderList = ({ orders, onViewOrder, onUpdateStatus, onProcessPayment, onRe
     });
   };
 
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
   const handleOrderClick = (order) => {
     setSelectedOrder(order);
   };
@@ -169,54 +171,14 @@ const OrderList = ({ orders, onViewOrder, onUpdateStatus, onProcessPayment, onRe
                       ))}
                     </div>
                   </div>
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-900">
-                  {order.items.length} item{order.items.length !== 1 ? 's' : ''}
-                </td>
-                <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                  {formatCurrency(order.totalAmount)}
-                </td>
-                <td className="px-4 py-3">
-                  <select
-                    value={order.priority || 'NORMAL'}
-                    onChange={(e) => onUpdatePriority && onUpdatePriority(order._id, e.target.value)}
-                    className="text-xs px-2 py-1 border rounded"
-                  >
-                    <option value="LOW">Low</option>
-                    <option value="NORMAL">Normal</option>
-                    <option value="HIGH">High</option>
-                    <option value="URGENT">Urgent</option>
-                  </select>
-                </td>
-                <td className="px-4 py-3">
-                  <select
-                    value={order.status}
-                    onChange={(e) => onUpdateStatus(order._id, e.target.value)}
-                    className={`px-2 py-1 rounded-full text-xs font-medium border-0 ${statusColors[order.status]}`}
-                  >
-                    <option value="PENDING">Pending</option>
-                    <option value="PREPARING">Preparing</option>
-                    <option value="READY">Ready</option>
-                    <option value="DELIVERED">Delivered</option>
-                    <option value="CANCELLED">Cancelled</option>
-                    <option value="PAID">Paid</option>
-                  </select>
-                </td>
-                <td className="px-4 py-3 text-sm">
-                  {order.paymentDetails ? (
-                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                      {order.paymentDetails.method}
-                    </span>
-                  ) : (
-                    <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">
-                      Unpaid
-                    </span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-500">
-                  {formatDate(order.createdAt)}
-                </td>
-                <td className="px-4 py-3 text-sm">
+                </div>
+
+                {/* Order Summary & Actions */}
+                <div className="bg-white/30 backdrop-blur-md rounded-xl p-4 border border-white/30">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-gray-900 font-medium">Total Amount:</span>
+                    <span className="text-2xl font-bold text-green-700">{formatCurrency(selectedOrder.totalAmount)}</span>
+                  </div>
                   <div className="flex space-x-2">
                     <button
                       onClick={() => onAddItems && onAddItems(selectedOrder._id)}
@@ -224,23 +186,23 @@ const OrderList = ({ orders, onViewOrder, onUpdateStatus, onProcessPayment, onRe
                     >
                       ➕ Add
                     </button>
-                  )}
-                  {selectedOrder.tableId && selectedOrder.status !== 'PAID' && selectedOrder.status !== 'CANCELLED' && (
-                    <button
-                      onClick={() => onTransfer(selectedOrder)}
-                      className="flex-1 p-3 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all border border-white/40"
-                    >
-                      🔄 Transfer
-                    </button>
-                  )}
-                  {!selectedOrder.paymentDetails && (
-                    <button
-                      onClick={() => onProcessPayment(selectedOrder)}
-                      className="flex-1 p-3 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all border border-white/40"
-                    >
-                      💳 Pay
-                    </button>
-                  )}
+                    {selectedOrder.tableId && selectedOrder.status !== 'PAID' && selectedOrder.status !== 'CANCELLED' && (
+                      <button
+                        onClick={() => onTransfer(selectedOrder)}
+                        className="flex-1 p-3 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all border border-white/40"
+                      >
+                        🔄 Transfer
+                      </button>
+                    )}
+                    {!selectedOrder.paymentDetails && (
+                      <button
+                        onClick={() => onProcessPayment(selectedOrder)}
+                        className="flex-1 p-3 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all border border-white/40"
+                      >
+                        💳 Pay
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </>
