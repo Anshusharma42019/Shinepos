@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import AddStaff from './AddStaff';
-import EditStaff from './EditStaff';
 
 const StaffList = ({ onAdd, onEdit }) => {
   const [staff, setStaff] = useState([]);
@@ -13,21 +11,13 @@ const StaffList = ({ onAdd, onEdit }) => {
   const fetchStaff = async () => {
     try {
       const token = localStorage.getItem('token');
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      console.log('User role:', user.role);
-      
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/staff/all/staff`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
-      console.log('Response status:', response.status);
-      
       if (response.ok) {
         const data = await response.json();
         setStaff(data.staff || []);
-      } else {
-        const errorData = await response.json();
-        console.error('API Error:', errorData);
       }
     } catch (error) {
       console.error('Error fetching staff:', error);
@@ -58,87 +48,110 @@ const StaffList = ({ onAdd, onEdit }) => {
     }
   };
 
-  const handleEdit = (staffMember) => {
-    setEditingStaff(staffMember);
-    setView('edit');
+  const getRoleIcon = (role) => {
+    switch(role) {
+      case 'RESTAURANT_ADMIN': return '👑';
+      case 'MANAGER': return '📊';
+      case 'CASHIER': return '💰';
+      case 'KITCHEN_STAFF': return '👨‍🍳';
+      case 'WAITER': return '🍽️';
+      default: return '👤';
+    }
   };
 
-  if (loading) return <div className="p-6">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="text-6xl mb-4 animate-pulse-slow">👥</div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-500 border-t-transparent mx-auto"></div>
+          <p className="mt-4 text-gray-900 font-medium">Loading staff...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Staff Management</h2>
+      <div className="flex justify-end items-center mb-6">
         <button
           onClick={onAdd}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          className="px-6 py-3 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl flex items-center space-x-2 font-medium shadow-lg hover:shadow-xl transition-all transform hover:scale-105 border border-white/40"
         >
-          + Add Staff
+          <span>➕ Add Staff</span>
         </button>
       </div>
       
-      <div className="grid gap-4">
-          {staff.map(member => (
-            <div key={member._id} className="bg-white p-4 rounded-lg shadow-md border">
-              <div className="flex justify-between items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {staff.map((member, index) => (
+          <div 
+            key={member._id} 
+            className="bg-white/30 backdrop-blur-md rounded-xl shadow-lg border border-white/40 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn overflow-hidden"
+            style={{ animationDelay: `${index * 0.05}s` }}
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 p-4 border-b border-white/30">
+              <div className="flex items-center gap-3">
+                <div className="text-4xl">{getRoleIcon(member.role)}</div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-lg font-semibold">{member.name}</h3>
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      member.role === 'MANAGER' ? 'bg-purple-100 text-purple-800' :
-                      member.role === 'CASHIER' ? 'bg-blue-100 text-blue-800' :
-                      member.role === 'KITCHEN_STAFF' ? 'bg-orange-100 text-orange-800' :
-                      member.role === 'RESTAURANT_ADMIN' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {member.role.replace('_', ' ')}
-                    </span>
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      member.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {member.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </div>
-                  
-                  <div className="text-sm text-gray-600 mb-1">
-                    <span className="font-medium">Email:</span> {member.email}
-                  </div>
-                  
-                  <div className="text-sm text-gray-600 mb-1">
-                    <span className="font-medium">Phone:</span> {member.phone}
-                  </div>
-                  
-                  <div className="text-sm text-gray-600 mb-1">
-                    <span className="font-medium">Hourly Rate:</span> ₹{member.hourlyRate || 0}
-                  </div>
-                  
-                  <div className="text-sm text-gray-600">
-                    <span className="font-medium">Joined:</span> {new Date(member.createdAt).toLocaleDateString()}
-                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">{member.name}</h3>
+                  <p className="text-sm text-gray-700">{member.role.replace('_', ' ')}</p>
                 </div>
-                
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => onEdit(member)}
-                    className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteStaff(member._id)}
-                    className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
-                </div>
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                  member.isActive ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                }`}>
+                  {member.isActive ? '✓ Active' : '✕ Inactive'}
+                </span>
               </div>
             </div>
-          ))}
-        </div>
+
+            {/* Content */}
+            <div className="p-4 space-y-3">
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-lg">📧</span>
+                <span className="text-gray-900 font-medium">{member.email}</span>
+              </div>
+              
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-lg">📱</span>
+                <span className="text-gray-900 font-medium">{member.phone}</span>
+              </div>
+              
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-lg">💵</span>
+                <span className="text-gray-900 font-medium">₹{member.hourlyRate || 0}/hr</span>
+              </div>
+              
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-lg">📅</span>
+                <span className="text-gray-700">Joined {new Date(member.createdAt).toLocaleDateString()}</span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="p-4 pt-0 flex gap-2">
+              <button
+                onClick={() => onEdit(member)}
+                className="flex-1 px-4 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-lg text-sm font-medium transition-all border border-white/40"
+              >
+                ✏️ Edit
+              </button>
+              <button
+                onClick={() => deleteStaff(member._id)}
+                className="flex-1 px-4 py-2 bg-red-500/80 backdrop-blur-md hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-all"
+              >
+                🗑️ Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
       
       {staff.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          <p>No staff members found. Add some staff to get started.</p>
+        <div className="text-center py-16 bg-white/70 backdrop-blur-md rounded-2xl shadow-xl">
+          <div className="text-6xl mb-4 animate-pulse-slow">👥</div>
+          <p className="text-gray-500 text-lg font-medium">No staff members found</p>
+          <p className="text-gray-400 text-sm mt-2">Add some staff to get started</p>
         </div>
       )}
     </div>

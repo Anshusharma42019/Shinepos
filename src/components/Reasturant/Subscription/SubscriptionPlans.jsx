@@ -16,8 +16,12 @@ const SubscriptionPlans = () => {
 
   if (loading) {
     return (
-      <div className="p-6 flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="text-6xl mb-4 animate-pulse-slow">💳</div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-500 border-t-transparent mx-auto"></div>
+          <p className="mt-4 text-gray-900 font-medium">Loading plans...</p>
+        </div>
       </div>
     );
   }
@@ -25,7 +29,7 @@ const SubscriptionPlans = () => {
   if (error) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+        <div className="bg-red-500/80 backdrop-blur-md border border-red-600/50 text-white px-4 py-3 rounded-xl">
           {error}
         </div>
       </div>
@@ -33,49 +37,49 @@ const SubscriptionPlans = () => {
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Subscription Plans</h1>
+    <div className="p-6 animate-fadeIn">
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">💳 Subscription Plans</h1>
 
       {currentPlan && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 mb-6 shadow-lg">
+        <div className="bg-white/20 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 mb-6 shadow-2xl">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-2xl font-bold text-blue-900 mb-1">Current Plan: {currentPlan.plan}</h3>
-              <p className="text-sm text-blue-700 flex items-center">
+              <h3 className="text-2xl font-bold text-gray-900 mb-1">Current Plan: {currentPlan.plan}</h3>
+              <p className="text-sm text-gray-700 flex items-center">
                 <FiCalendar className="mr-2" />
                 {new Date(currentPlan.startDate).toLocaleDateString()} - {new Date(currentPlan.endDate).toLocaleDateString()}
               </p>
             </div>
             <div className={`px-4 py-2 rounded-full font-semibold ${
-              currentPlan.paymentStatus === 'cancelled' ? 'bg-orange-100 text-orange-800' :
-              currentPlan.isExpired ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+              currentPlan.paymentStatus === 'cancelled' ? 'bg-orange-500 text-white' :
+              currentPlan.isExpired ? 'bg-red-500 text-white' : 'bg-green-500 text-white'
             }`}>
-              {currentPlan.paymentStatus === 'cancelled' ? 'Cancelled' : currentPlan.isExpired ? 'Expired' : 'Active'}
+              {currentPlan.paymentStatus === 'cancelled' ? '⚠️ Cancelled' : currentPlan.isExpired ? '❌ Expired' : '✓ Active'}
             </div>
           </div>
           
           {!currentPlan.isExpired && currentPlan.paymentStatus === 'paid' && (
-            <div className="bg-white rounded-lg p-4 mt-4">
+            <div className="bg-white/40 backdrop-blur-lg rounded-xl p-4 mt-4 border border-white/50">
               <div className="flex items-center mb-3">
-                <FiClock className="text-indigo-600 mr-2" />
-                <h4 className="font-semibold text-gray-800">Time Remaining</h4>
+                <FiClock className="text-gray-900 mr-2" />
+                <h4 className="font-semibold text-gray-900">⏰ Time Remaining</h4>
               </div>
               <div className="grid grid-cols-4 gap-4 text-center">
-                <div className="bg-indigo-50 rounded-lg p-3">
-                  <div className="text-3xl font-bold text-indigo-600">{countdown.days}</div>
-                  <div className="text-xs text-gray-600 mt-1">Days</div>
+                <div className="bg-white/40 backdrop-blur-lg rounded-xl p-3 border border-white/50">
+                  <div className="text-3xl font-bold text-gray-900">{countdown.days}</div>
+                  <div className="text-xs text-gray-700 mt-1">Days</div>
                 </div>
-                <div className="bg-indigo-50 rounded-lg p-3">
-                  <div className="text-3xl font-bold text-indigo-600">{countdown.hours}</div>
-                  <div className="text-xs text-gray-600 mt-1">Hours</div>
+                <div className="bg-white/40 backdrop-blur-lg rounded-xl p-3 border border-white/50">
+                  <div className="text-3xl font-bold text-gray-900">{countdown.hours}</div>
+                  <div className="text-xs text-gray-700 mt-1">Hours</div>
                 </div>
-                <div className="bg-indigo-50 rounded-lg p-3">
-                  <div className="text-3xl font-bold text-indigo-600">{countdown.minutes}</div>
-                  <div className="text-xs text-gray-600 mt-1">Minutes</div>
+                <div className="bg-white/40 backdrop-blur-lg rounded-xl p-3 border border-white/50">
+                  <div className="text-3xl font-bold text-gray-900">{countdown.minutes}</div>
+                  <div className="text-xs text-gray-700 mt-1">Minutes</div>
                 </div>
-                <div className="bg-indigo-50 rounded-lg p-3">
-                  <div className="text-3xl font-bold text-indigo-600">{countdown.seconds}</div>
-                  <div className="text-xs text-gray-600 mt-1">Seconds</div>
+                <div className="bg-white/40 backdrop-blur-lg rounded-xl p-3 border border-white/50">
+                  <div className="text-3xl font-bold text-gray-900">{countdown.seconds}</div>
+                  <div className="text-xs text-gray-700 mt-1">Seconds</div>
                 </div>
               </div>
             </div>
@@ -83,28 +87,45 @@ const SubscriptionPlans = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-6">
-        {plans.map((plan) => (
-          <div key={plan.name} className="bg-white rounded-lg shadow-lg p-6 border-2 border-gray-200 hover:border-indigo-500 transition max-w-md mx-auto">
-            <h3 className="text-2xl font-bold mb-2">{plan.displayName}</h3>
-            <div className="text-3xl font-bold text-indigo-600 mb-4">
-              ₹{plan.price}
-              <span className="text-sm text-gray-500">/month</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {plans.map((plan, index) => (
+          <div 
+            key={plan.name} 
+            className="bg-white/20 backdrop-blur-2xl rounded-2xl shadow-2xl p-6 border border-white/40 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn"
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
+            <div className="text-center mb-4">
+              <div className="text-4xl mb-2">
+                {plan.name === 'TRIAL' ? '🆓' : 
+                 plan.name === 'BASIC' ? '📦' : 
+                 plan.name === 'PREMIUM' ? '⭐' : '👑'}
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.displayName}</h3>
+              <div className="text-3xl font-bold text-gray-900 mb-1">
+                ₹{plan.price}
+              </div>
+              <span className="text-sm text-gray-700">/month</span>
             </div>
+
             <ul className="space-y-2 mb-6">
-              {plan.features?.map((feature, index) => (
-                <li key={index} className="flex items-start">
-                  <FiCheck className="text-green-500 mr-2 mt-1" />
-                  <span className="text-sm">{feature}</span>
+              {plan.features?.map((feature, idx) => (
+                <li key={idx} className="flex items-start text-sm text-gray-900">
+                  <FiCheck className="text-green-600 mr-2 mt-1 flex-shrink-0" />
+                  <span>{feature}</span>
                 </li>
               ))}
             </ul>
+
             <button
               onClick={() => handleSubscribe(plan.name)}
               disabled={subscribing || currentPlan?.plan === plan.name}
-              className="w-full py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400"
+              className={`w-full py-3 px-4 rounded-xl font-medium transition-all ${
+                currentPlan?.plan === plan.name
+                  ? 'bg-green-500 text-white cursor-not-allowed'
+                  : 'bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 border border-white/40'
+              } disabled:opacity-50`}
             >
-              {currentPlan?.plan === plan.name ? 'Current Plan' : 'Subscribe'}
+              {currentPlan?.plan === plan.name ? '✓ Current Plan' : '🚀 Subscribe'}
             </button>
           </div>
         ))}

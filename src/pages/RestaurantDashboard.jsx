@@ -18,6 +18,21 @@ const RestaurantDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const navigate = useNavigate();
 
+  const backgroundImages = {
+    dashboard: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1920&q=80',
+    orders: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1920&q=80',
+    tables: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1920&q=80',
+    kot: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=1920&q=80',
+    menu: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1920&q=80',
+    category: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=1920&q=80',
+    addons: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1920&q=80',
+    variations: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=1920&q=80',
+    inventory: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=1920&q=80',
+    staff: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=1920&q=80',
+    subscription: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1920&q=80',
+    settings: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=1920&q=80'
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -59,10 +74,21 @@ const RestaurantDashboard = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 relative overflow-hidden">
+      <div 
+        className="fixed inset-0 transition-opacity duration-500"
+        style={{
+          backgroundImage: `url(${backgroundImages[activeTab] || backgroundImages.dashboard})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          filter: 'blur(3px)',
+          transform: 'scale(1.1)',
+          zIndex: 0
+        }}
+      />
       <SubscriptionBlocker />
       <RestaurantSidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} />
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto relative z-10">
         {renderContent()}
       </div>
     </div>

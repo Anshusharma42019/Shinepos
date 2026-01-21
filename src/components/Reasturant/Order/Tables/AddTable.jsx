@@ -3,23 +3,21 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-const AddTable = ({ onClose, onTableAdded }) => {
+const AddTable = ({ onSuccess, onBack }) => {
   const [formData, setFormData] = useState({
     tableNumber: '',
     capacity: '',
     location: 'INDOOR'
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
+      await axios.post(
         `${API_BASE_URL}/api/table/add/table`,
         {
           ...formData,
@@ -28,81 +26,78 @@ const AddTable = ({ onClose, onTableAdded }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
-      onTableAdded(response.data.table);
-      onClose();
+      alert('Table added successfully!');
+      onSuccess();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to add table');
+      alert(err.response?.data?.error || 'Failed to add table');
     }
     
     setLoading(false);
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-        <h2 className="text-xl font-semibold mb-4">Add New Table</h2>
-        
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
+    <div className="p-6 animate-fadeIn">
+      <div className="bg-white/20 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/40 p-6 max-w-2xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-2xl font-bold text-gray-900">🪑 Add New Table</h3>
+          <button
+            onClick={onBack}
+            className="px-4 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl border border-white/40"
+          >
+            ← Back
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Table Number *
-            </label>
+            <label className="block text-sm font-medium text-gray-900 mb-1">Table Number *</label>
             <input
               type="text"
               value={formData.tableNumber}
               onChange={(e) => setFormData({...formData, tableNumber: e.target.value})}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2"
+              className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Capacity *
-            </label>
+            <label className="block text-sm font-medium text-gray-900 mb-1">Capacity *</label>
             <input
               type="number"
               min="1"
               value={formData.capacity}
               onChange={(e) => setFormData({...formData, capacity: e.target.value})}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2"
+              className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Location
-            </label>
+            <label className="block text-sm font-medium text-gray-900 mb-1">Location</label>
             <select
               value={formData.location}
               onChange={(e) => setFormData({...formData, location: e.target.value})}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2"
+              className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
             >
-              <option value="INDOOR">Indoor</option>
+              <option value="INDOOR">🏠 Indoor</option>
+              <option value="OUTDOOR">🌳 Outdoor</option>
             </select>
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
+          <div className="flex justify-end gap-4 pt-4">
             <button
               type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-300 rounded-lg"
+              onClick={onBack}
+              className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl border border-white/40"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50"
+              className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl border border-white/40 disabled:opacity-50"
             >
-              {loading ? 'Adding...' : 'Add Table'}
+              {loading ? 'Adding...' : '✓ Add Table'}
             </button>
           </div>
         </form>

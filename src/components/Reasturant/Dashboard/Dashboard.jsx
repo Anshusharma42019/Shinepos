@@ -28,14 +28,14 @@ const Dashboard = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Restaurant Dashboard</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">Restaurant Dashboard</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((card, index) => (
-          <div key={index} className="bg-white rounded-lg shadow-md p-6">
+          <div key={index} className="bg-white/25 backdrop-blur-md rounded-lg shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm">{card.title}</p>
+                <p className="text-gray-900 text-sm">{card.title}</p>
                 <p className="text-2xl font-bold text-gray-800 mt-2">{card.value}</p>
               </div>
               <div className={`${card.color} w-12 h-12 rounded-full flex items-center justify-center text-2xl`}>
@@ -46,7 +46,7 @@ const Dashboard = () => {
         ))}
       </div>
 
-      <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+      <div className="mt-8 bg-white/50 backdrop-blur-md rounded-lg shadow-md p-6">
         <h2 className="text-xl font-bold text-gray-800 mb-4">Recent Orders</h2>
         <p className="text-gray-500">No orders yet</p>
       </div>

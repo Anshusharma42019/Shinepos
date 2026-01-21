@@ -135,96 +135,133 @@ const ItemList = () => {
     return <EditItem item={editingItem} onSuccess={handleEditSuccess} onBack={() => setView('list')} />;
   }
 
-  if (loading) return <div className="p-6">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="text-6xl mb-4 animate-pulse-slow">🍕</div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-500 border-t-transparent mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-medium">Loading menu items...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-end items-center">
+    <div>
+      <div className="flex justify-end items-center mb-6">
         <button
           onClick={() => setView('add')}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          className="px-6 py-3 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl flex items-center space-x-2 font-medium shadow-lg hover:shadow-xl transition-all transform hover:scale-105 border border-white/40"
         >
-          + Add Item
+          <span>➕ Add Item</span>
         </button>
       </div>
       
-      {items.map(item => (
-        <div key={item._id} className="bg-white p-4 rounded-lg shadow-md border">
-          <div className="flex items-start gap-4">
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={() => toggleItemStatus(item._id, item.status)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                  item.status === 'active' ? 'bg-green-600' : 'bg-gray-300'
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    item.status === 'active' ? 'translate-x-6' : 'translate-x-1'
-                  }`}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {items.map((item, index) => (
+          <div 
+            key={item._id} 
+            className="bg-white/30 backdrop-blur-md rounded-xl shadow-lg overflow-hidden border border-white/40 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn"
+            style={{ animationDelay: `${index * 0.03}s` }}
+          >
+            {/* Image Section */}
+            <div className="relative h-32 bg-gradient-to-br from-orange-100 to-red-100">
+              {item.imageUrl ? (
+                <img 
+                  src={item.imageUrl} 
+                  alt={item.itemName}
+                  className="w-full h-full object-cover"
                 />
-              </button>
-              <button
-                onClick={() => handleEdit(item)}
-                className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => deleteItem(item._id)}
-                className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
-              >
-                Delete
-              </button>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="text-4xl">🍴</span>
+                </div>
+              )}
+              
+              {/* Status Badge */}
+              <div className="absolute top-2 right-2">
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold shadow-md ${
+                  item.status === 'active' 
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-gray-400 text-white'
+                }`}>
+                  {item.status === 'active' ? '✓' : '✕'}
+                </span>
+              </div>
+              
+              {/* Food Type Badge */}
+              <div className="absolute top-2 left-2">
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold shadow-md ${
+                  item.foodType === 'veg' 
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-red-500 text-white'
+                }`}>
+                  {item.foodType === 'veg' ? '🌱' : '🍖'}
+                </span>
+              </div>
             </div>
             
-            {item.imageUrl && (
-              <img 
-                src={item.imageUrl} 
-                alt={item.itemName}
-                className="w-16 h-16 object-cover rounded-lg"
-              />
-            )}
-            
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-lg font-semibold">{item.itemName}</h3>
-                <span className={`px-2 py-1 rounded text-xs ${
-                  item.foodType === 'veg' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
-                  {item.foodType === 'veg' ? '🟢 Veg' : '🔴 Non-Veg'}
-                </span>
-                <span className={`px-2 py-1 rounded text-xs ${
-                  item.status === 'active' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-                }`}>
-                  {item.status}
-                </span>
+            {/* Content Section */}
+            <div className="p-3">
+              <h3 className="text-sm font-bold text-gray-900 mb-2 truncate">{item.itemName}</h3>
+              
+              <div className="space-y-1 mb-3 text-xs text-gray-900">
+                <div className="flex items-center justify-between">
+                  <span>🏷️ {item.categoryID?.name || 'N/A'}</span>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span>⏰ {item.timeToPrepare} min</span>
+                  {item.variation && item.variation.length > 0 ? (
+                    <span className="text-sm font-bold text-green-600">
+                      ₹{Math.min(...item.variation.map(v => v.price || 0))}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400">N/A</span>
+                  )}
+                </div>
               </div>
               
-              <div className="text-sm text-gray-600 mb-1">
-                <span className="font-medium">Category:</span> {item.categoryID?.name || 'N/A'}
-              </div>
-              
-              <div className="text-sm text-gray-600 mb-1">
-                <span className="font-medium">Prep Time:</span> {item.timeToPrepare} min
-              </div>
-              
-              <div className="text-sm text-gray-600">
-                <span className="font-medium">Price:</span> 
-                {item.variation && item.variation.length > 0 ? (
-                  <span>₹{Math.min(...item.variation.map(v => v.price || 0))}</span>
-                ) : (
-                  <span className="text-gray-400">No variations</span>
-                )}
+              {/* Actions */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => toggleItemStatus(item._id, item.status)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all ${
+                    item.status === 'active' ? 'bg-green-500' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      item.status === 'active' ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+                
+                <button
+                  onClick={() => handleEdit(item)}
+                  className="flex-1 px-2 py-1.5 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-lg text-xs font-medium transition-all border border-white/40"
+                >
+                  ✏️
+                </button>
+                
+                <button
+                  onClick={() => deleteItem(item._id)}
+                  className="flex-1 px-2 py-1.5 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-lg text-xs font-medium transition-all border border-white/40"
+                >
+                  🗑️
+                </button>
               </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
       
       {items.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          <p>No items found. Add some items to get started.</p>
+        <div className="text-center py-16 bg-white/70 backdrop-blur-md rounded-2xl shadow-xl">
+          <div className="text-6xl mb-4 animate-pulse-slow">🍴</div>
+          <p className="text-gray-500 text-lg font-medium">No menu items found</p>
+          <p className="text-gray-400 text-sm mt-2">Add some items to get started</p>
         </div>
       )}
     </div>

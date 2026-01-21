@@ -17,6 +17,8 @@ const AddItem = ({ onSuccess, onBack }) => {
   const [selectedAddons, setSelectedAddons] = useState([]);
   const [selectedVariations, setSelectedVariations] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchAddon, setSearchAddon] = useState('');
+  const [searchVariation, setSearchVariation] = useState('');
 
   useEffect(() => {
     fetchAddons();
@@ -62,19 +64,11 @@ const AddItem = ({ onSuccess, onBack }) => {
   };
 
   const handleAddonChange = (addonId, checked) => {
-    if (checked) {
-      setSelectedAddons([...selectedAddons, addonId]);
-    } else {
-      setSelectedAddons(selectedAddons.filter(id => id !== addonId));
-    }
+    setSelectedAddons(checked ? [...selectedAddons, addonId] : selectedAddons.filter(id => id !== addonId));
   };
 
   const handleVariationChange = (variationId, checked) => {
-    if (checked) {
-      setSelectedVariations([...selectedVariations, variationId]);
-    } else {
-      setSelectedVariations(selectedVariations.filter(id => id !== variationId));
-    }
+    setSelectedVariations(checked ? [...selectedVariations, variationId] : selectedVariations.filter(id => id !== variationId));
   };
 
   const handleSubmit = async (e) => {
@@ -83,7 +77,6 @@ const AddItem = ({ onSuccess, onBack }) => {
 
     try {
       const token = localStorage.getItem('token');
-      
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/menus/create/menu-item`, {
         method: 'POST',
         headers: {
@@ -105,17 +98,6 @@ const AddItem = ({ onSuccess, onBack }) => {
 
       if (response.ok) {
         alert('Item added successfully!');
-        setFormData({
-          itemName: '',
-          categoryID: '',
-          status: 'active',
-          imageUrl: '',
-          videoUrl: '',
-          timeToPrepare: '',
-          foodType: 'veg'
-        });
-        setSelectedAddons([]);
-        setSelectedVariations([]);
         if (onSuccess) onSuccess();
       } else {
         const data = await response.json();
@@ -127,184 +109,211 @@ const AddItem = ({ onSuccess, onBack }) => {
     setLoading(false);
   };
 
+  const filteredAddons = availableAddons.filter(addon => 
+    addon.name.toLowerCase().includes(searchAddon.toLowerCase())
+  );
+
+  const filteredVariations = availableVariations.filter(variation => 
+    variation.name.toLowerCase().includes(searchVariation.toLowerCase())
+  );
+
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Add New Item</h2>
-        {onBack && (
-          <button
-            onClick={onBack}
-            className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
-          >
-            Back
-          </button>
-        )}
-      </div>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-2">Item Name</label>
+    <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fadeIn p-6">
+      {/* Left Side - Addons & Variations */}
+      <div className="lg:col-span-1 space-y-6 animate-slideIn" style={{ animationDelay: '0.1s' }}>
+        {/* Addons */}
+        <div className="bg-white/20 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/40 p-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">🍟 Addons</h3>
           <input
             type="text"
-            name="itemName"
-            value={formData.itemName}
-            onChange={handleInputChange}
-            className="w-full p-3 border rounded-lg"
-            required
+            placeholder="🔍 Search addons..."
+            value={searchAddon}
+            onChange={(e) => setSearchAddon(e.target.value)}
+            className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 placeholder-gray-600"
           />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">Category</label>
-          <select
-            name="categoryID"
-            value={formData.categoryID}
-            onChange={handleInputChange}
-            className="w-full p-3 border rounded-lg"
-            required
-          >
-            <option value="">Select Category</option>
-            {categories.map(category => (
-              <option key={category._id} value={category._id}>
-                {category.name}
-              </option>
+          <div className="space-y-2 max-h-[300px] overflow-y-auto">
+            {filteredAddons.map(addon => (
+              <label key={addon._id} className="flex items-center space-x-3 p-3 bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl cursor-pointer hover:bg-white/50">
+                <input
+                  type="checkbox"
+                  checked={selectedAddons.includes(addon._id)}
+                  onChange={(e) => handleAddonChange(addon._id, e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <div className="flex-1">
+                  <div className="font-medium text-gray-900">{addon.name}</div>
+                  <div className="text-sm text-gray-700">₹{addon.price}</div>
+                </div>
+                <span>{addon.veg ? '🟢' : '🔴'}</span>
+              </label>
             ))}
-          </select>
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">Status</label>
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleInputChange}
-            className="w-full p-3 border rounded-lg"
-          >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="out-of-stock">Out of Stock</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">Image URL</label>
+        {/* Variations */}
+        <div className="bg-white/20 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/40 p-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">📏 Variations</h3>
           <input
-            type="url"
-            name="imageUrl"
-            value={formData.imageUrl}
-            onChange={handleInputChange}
-            className="w-full p-3 border rounded-lg"
-            placeholder="https://example.com/image.jpg"
+            type="text"
+            placeholder="🔍 Search variations..."
+            value={searchVariation}
+            onChange={(e) => setSearchVariation(e.target.value)}
+            className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 placeholder-gray-600"
           />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">Video URL</label>
-          <input
-            type="url"
-            name="videoUrl"
-            value={formData.videoUrl}
-            onChange={handleInputChange}
-            className="w-full p-3 border rounded-lg"
-            placeholder="https://example.com/video.mp4"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">Time to Prepare (minutes)</label>
-          <input
-            type="number"
-            name="timeToPrepare"
-            value={formData.timeToPrepare}
-            onChange={handleInputChange}
-            className="w-full p-3 border rounded-lg"
-            min="1"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">Food Type</label>
-          <select
-            name="foodType"
-            value={formData.foodType}
-            onChange={handleInputChange}
-            className="w-full p-3 border rounded-lg"
-          >
-            <option value="veg">Vegetarian</option>
-            <option value="nonveg">Non-Vegetarian</option>
-          </select>
-        </div>
-
-        {/* Addons Section */}
-        <div className="border-t pt-6">
-          <h3 className="text-lg font-semibold mb-4">Select Addons</h3>
-          {availableAddons.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {availableAddons.map(addon => (
-                <div key={addon._id} className="flex items-center space-x-3 p-3 border rounded-lg">
-                  <input
-                    type="checkbox"
-                    id={`addon-${addon._id}`}
-                    checked={selectedAddons.includes(addon._id)}
-                    onChange={(e) => handleAddonChange(addon._id, e.target.checked)}
-                    className="w-4 h-4 text-blue-600"
-                  />
-                  <label htmlFor={`addon-${addon._id}`} className="flex-1 cursor-pointer">
-                    <div className="font-medium">{addon.name}</div>
-                    <div className="text-sm text-gray-600">₹{addon.price}</div>
-                    {addon.description && (
-                      <div className="text-xs text-gray-500">{addon.description}</div>
-                    )}
-                  </label>
-                  <span className={`px-2 py-1 rounded text-xs ${
-                    addon.veg ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`}>
-                    {addon.veg ? '🟢' : '🔴'}
-                  </span>
+          <div className="space-y-2 max-h-[300px] overflow-y-auto">
+            {filteredVariations.map(variation => (
+              <label key={variation._id} className="flex items-center space-x-3 p-3 bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl cursor-pointer hover:bg-white/50">
+                <input
+                  type="checkbox"
+                  checked={selectedVariations.includes(variation._id)}
+                  onChange={(e) => handleVariationChange(variation._id, e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <div className="flex-1">
+                  <div className="font-medium text-gray-900">{variation.name}</div>
+                  <div className="text-sm text-gray-700">₹{variation.price}</div>
                 </div>
-              ))}
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Item Details */}
+      <div className="lg:col-span-2 space-y-6 animate-slideIn" style={{ animationDelay: '0.2s' }}>
+        {/* Basic Information */}
+        <div className="bg-white/20 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/40 p-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">🍽️ Item Details</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-1">Item Name *</label>
+              <input
+                type="text"
+                name="itemName"
+                value={formData.itemName}
+                onChange={handleInputChange}
+                className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
+                required
+              />
             </div>
-          ) : (
-            <p className="text-gray-500">No addons available. Create addons first.</p>
-          )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-1">Category *</label>
+              <select
+                name="categoryID"
+                value={formData.categoryID}
+                onChange={handleInputChange}
+                className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
+                required
+              >
+                <option value="">Select Category</option>
+                {categories.map(category => (
+                  <option key={category._id} value={category._id}>{category.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-1">Status</label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+                className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="out-of-stock">Out of Stock</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-1">Food Type</label>
+              <select
+                name="foodType"
+                value={formData.foodType}
+                onChange={handleInputChange}
+                className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
+              >
+                <option value="veg">🟢 Vegetarian</option>
+                <option value="nonveg">🔴 Non-Vegetarian</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-1">Time to Prepare (min) *</label>
+              <input
+                type="number"
+                name="timeToPrepare"
+                value={formData.timeToPrepare}
+                onChange={handleInputChange}
+                className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
+                min="1"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-1">Image URL</label>
+              <input
+                type="url"
+                name="imageUrl"
+                value={formData.imageUrl}
+                onChange={handleInputChange}
+                className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-900 mb-1">Video URL</label>
+              <input
+                type="url"
+                name="videoUrl"
+                value={formData.videoUrl}
+                onChange={handleInputChange}
+                className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
+                placeholder="https://example.com/video.mp4"
+              />
+            </div>
+          </div>
         </div>
 
-        {/* Variations Section */}
-        <div className="border-t pt-6">
-          <h3 className="text-lg font-semibold mb-4">Select Variations</h3>
-          {availableVariations.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {availableVariations.map(variation => (
-                <div key={variation._id} className="flex items-center space-x-3 p-3 border rounded-lg">
-                  <input
-                    type="checkbox"
-                    id={`variation-${variation._id}`}
-                    checked={selectedVariations.includes(variation._id)}
-                    onChange={(e) => handleVariationChange(variation._id, e.target.checked)}
-                    className="w-4 h-4 text-blue-600"
-                  />
-                  <label htmlFor={`variation-${variation._id}`} className="flex-1 cursor-pointer">
-                    <div className="font-medium">{variation.name}</div>
-                    <div className="text-sm text-gray-600">₹{variation.price}</div>
-                  </label>
-                </div>
-              ))}
+        {/* Selected Summary */}
+        <div className="bg-white/20 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/40 p-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">📋 Summary</h3>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="text-gray-700">Selected Addons:</span>
+              <span className="ml-2 font-bold text-gray-900">{selectedAddons.length}</span>
             </div>
-          ) : (
-            <p className="text-gray-500">No variations available. Create variations first.</p>
-          )}
+            <div>
+              <span className="text-gray-700">Selected Variations:</span>
+              <span className="ml-2 font-bold text-gray-900">{selectedVariations.length}</span>
+            </div>
+          </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? 'Adding...' : 'Add Item'}
-        </button>
-      </form>
-    </div>
+        {/* Action Buttons */}
+        <div className="flex justify-end space-x-4">
+          <button
+            type="button"
+            onClick={onBack}
+            className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl border border-white/40"
+          >
+            ← Back
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl border border-white/40 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Creating...' : '✓ Create Item'}
+          </button>
+        </div>
+      </div>
+    </form>
   );
 };
 

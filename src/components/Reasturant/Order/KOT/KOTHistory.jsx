@@ -28,96 +28,75 @@ const KOTHistory = () => {
     setLoading(false);
   };
 
-  const updateKOTStatus = async (kotId, newStatus) => {
-    try {
-      setHistoryKots(prev => prev.map(kot => 
-        kot._id === kotId ? { ...kot, status: newStatus } : kot
-      ));
-
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/kot/${kotId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-      
-      if (!response.ok) {
-        fetchKOTHistory();
-      }
-    } catch (error) {
-      console.error('Error updating KOT status:', error);
-      fetchKOTHistory();
-    }
-  };
-
-  if (loading) return <div className="p-6">Loading history...</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="text-6xl mb-4 animate-pulse-slow">📜</div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-500 border-t-transparent mx-auto"></div>
+          <p className="mt-4 text-gray-900 font-medium">Loading history...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">KOT History</h2>
-        <button
-          onClick={fetchKOTHistory}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+    <div className="animate-fadeIn space-y-4">
+      {historyKots.map((kot, index) => (
+        <div 
+          key={kot._id} 
+          className="bg-white/30 backdrop-blur-md rounded-xl shadow-lg border border-white/40 hover:shadow-xl transition-all duration-300 animate-fadeIn"
+          style={{ animationDelay: `${index * 0.03}s` }}
         >
-          Refresh
-        </button>
-      </div>
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-4">
+                <div className={`px-4 py-2 rounded-xl font-bold text-white ${
+                  kot.status === 'DELIVERED' ? 'bg-green-500' :
+                  kot.status === 'PAID' ? 'bg-gray-500' : 
+                  'bg-red-500'
+                }`}>
+                  {kot.status === 'DELIVERED' ? '✅' :
+                   kot.status === 'PAID' ? '💰' : '❌'}
+                </div>
+                <div>
+                  <h3 className="font-bold text-xl text-gray-900">{kot.kotNumber}</h3>
+                  <p className="text-sm text-gray-700">📝 Order: {kot.orderNumber}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-700">📅 {new Date(kot.createdAt).toLocaleDateString()}</p>
+                <p className="text-sm text-gray-700">⏰ {new Date(kot.createdAt).toLocaleTimeString()}</p>
+                {kot.tableNumber && (
+                  <p className="text-sm text-gray-700">🪑 Table: {kot.tableNumber}</p>
+                )}
+              </div>
+            </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">KOT #</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order #</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Items</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {historyKots.map((kot) => (
-              <tr key={kot._id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm font-medium">{kot.kotNumber}</td>
-                <td className="px-4 py-3 text-sm">{kot.orderNumber}</td>
-                <td className="px-4 py-3 text-sm">
-                  {kot.items?.map((item, idx) => (
-                    <div key={idx}>{item.quantity}x {item.name}</div>
-                  ))}
-                </td>
-                <td className="px-4 py-3">
-                  <select
-                    value={kot.status}
-                    onChange={(e) => updateKOTStatus(kot._id, e.target.value)}
-                    className={`px-2 py-1 rounded text-xs font-medium border-0 ${
-                      kot.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
-                      kot.status === 'PAID' ? 'bg-gray-100 text-gray-800' : 
-                      'bg-red-100 text-red-800'
-                    }`}
-                  >
-                    <option value="PENDING">Pending</option>
-                    <option value="PREPARING">Preparing</option>
-                    <option value="READY">Ready</option>
-                    <option value="DELIVERED">Delivered</option>
-                    <option value="CANCELLED">Cancelled</option>
-                    <option value="PAID">Paid</option>
-                  </select>
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-500">
-                  {new Date(kot.createdAt).toLocaleString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            <div className="flex flex-wrap gap-2">
+              {kot.items?.map((item, idx) => (
+                <div key={idx} className="bg-white/40 backdrop-blur-lg rounded-lg px-3 py-2 border border-white/50">
+                  <span className="font-medium text-gray-900">
+                    <span className="bg-orange-500 text-white font-bold px-2 py-0.5 rounded-full text-xs mr-2">
+                      {item.quantity}x
+                    </span>
+                    {item.name}
+                  </span>
+                  {item.variation && (
+                    <span className="text-sm text-gray-700 ml-2">({item.variation.name})</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
 
       {historyKots.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          <p>No KOT history available</p>
+        <div className="text-center py-16 bg-white/70 backdrop-blur-md rounded-2xl shadow-xl">
+          <div className="text-6xl mb-4 animate-pulse-slow">📜</div>
+          <p className="text-gray-500 text-lg font-medium">No KOT history available</p>
+          <p className="text-gray-400 text-sm mt-2">Completed orders will appear here</p>
         </div>
       )}
     </div>

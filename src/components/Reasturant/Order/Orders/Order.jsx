@@ -46,67 +46,52 @@ const Order = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex justify-center items-center h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+        <div className="text-center">
+          <div className="text-6xl mb-4 animate-pulse-slow">🍽️</div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent mx-auto"></div>
+          <p className="mt-4 text-gray-600 font-medium">Loading orders...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Order Management</h1>
-        
-        <div className="flex space-x-2">
-          <button
-            onClick={() => setActiveTab('list')}
-            className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
-              activeTab === 'list' 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            <FiEye />
-            <span>Orders</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('create')}
-            className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
-              activeTab === 'create' 
-                ? 'bg-green-600 text-white' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            <FiPlus />
-            <span>New Order</span>
-          </button>
-        </div>
-      </div>
-
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
+    <div className="min-h-screen p-6">
+      <div className="max-w-7xl mx-auto">
+        {error && (
+          <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-xl mb-6 shadow-lg animate-slideIn">
+            <div className="flex items-center space-x-2">
+              <span className="text-2xl">⚠️</span>
+              <span className="font-medium">{error}</span>
+            </div>
+          </div>
+        )}
 
       {activeTab === 'list' && (
-        <OrderList
-          orders={orders}
-          onViewOrder={handleViewOrder}
-          onUpdateStatus={handleUpdateStatus}
-          onUpdatePriority={handleUpdatePriority}
-          onProcessPayment={handlePaymentClick}
-          onAddItems={handleAddItems}
-          onTransfer={handleTransferClick}
-        />
+        <div className="animate-fadeIn">
+          <OrderList
+            orders={orders}
+            onViewOrder={handleViewOrder}
+            onUpdateStatus={handleUpdateStatus}
+            onUpdatePriority={handleUpdatePriority}
+            onProcessPayment={handlePaymentClick}
+            onAddItems={handleAddItems}
+            onTransfer={handleTransferClick}
+            onRefresh={fetchOrders}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
+        </div>
       )}
 
       {activeTab === 'create' && (
-        <CreateOrder
-          onCreateOrder={handleCreateOrder}
-          onCancel={() => setActiveTab('list')}
-        />
+        <div className="animate-fadeIn">
+          <CreateOrder
+            onCreateOrder={handleCreateOrder}
+            onCancel={() => setActiveTab('list')}
+          />
+        </div>
       )}
 
       {activeTab === 'details' && selectedOrder && (
@@ -146,6 +131,7 @@ const Order = () => {
           onSuccess={handleTransferSuccess}
         />
       )}
+      </div>
     </div>
   );
 };

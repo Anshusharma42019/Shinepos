@@ -3,12 +3,12 @@ import ItemList from './ItemList';
 
 const Menu = () => {
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-4">Menu Management</h2>
+    <div className="min-h-screen p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="animate-fadeIn">
+          <ItemList />
+        </div>
       </div>
-      
-      <ItemList />
     </div>
   );
 };
