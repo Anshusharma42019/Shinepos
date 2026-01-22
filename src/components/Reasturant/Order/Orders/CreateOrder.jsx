@@ -46,7 +46,7 @@ const CreateOrder = ({ onCreateOrder, onCancel }) => {
       )}
 
       {/* Left Side - Menu Items */}
-      <div className="lg:col-span-1 bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 p-6">
+      <div className="lg:col-span-1 bg-white/10 backdrop-blur-xl rounded-2xl p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-4">🍽️ Menu Items</h3>
         
         {/* Search Bar */}
@@ -64,7 +64,7 @@ const CreateOrder = ({ onCreateOrder, onCancel }) => {
           {menuItems.filter(item => 
             item.itemName.toLowerCase().includes(searchQuery.toLowerCase())
           ).map((item) => (
-            <div key={item._id} className="bg-white/30 backdrop-blur-md border border-white/40 rounded-xl p-4">
+            <div key={item._id} className="bg-white/30 backdrop-blur-md rounded-xl p-4">
               <div className="flex justify-between items-start mb-2">
                 <h4 className="font-medium text-gray-900">{item.itemName}</h4>
                 <span className="text-sm font-semibold text-green-700">
@@ -82,9 +82,9 @@ const CreateOrder = ({ onCreateOrder, onCancel }) => {
                 type="button"
                 onClick={() => openItemModal(item)}
                 disabled={item.status !== 'active'}
-                className={`w-full py-2 px-4 rounded-xl text-sm font-medium ${
+                className={`w-full py-2 px-4 rounded-xl text-sm font-medium transition-colors ${
                   item.status === 'active'
-                    ? 'bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 border border-white/40'
+                    ? 'bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900'
                     : 'bg-gray-300/50 text-gray-500 cursor-not-allowed'
                 }`}
               >
@@ -98,7 +98,7 @@ const CreateOrder = ({ onCreateOrder, onCancel }) => {
       {/* Right Side - Customer Info & Order Items */}
       <div className="lg:col-span-2 space-y-6">
         {/* Customer Information */}
-        <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 p-6">
+        <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">👤 Customer Information</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -146,7 +146,7 @@ const CreateOrder = ({ onCreateOrder, onCancel }) => {
                 <label className="block text-sm font-medium text-gray-900 mb-1">
                   Select Tables to Merge *
                 </label>
-                <div className="space-y-2 max-h-32 overflow-y-auto bg-white/20 backdrop-blur-md border border-white/40 rounded-xl p-3">
+                <div className="space-y-2 max-h-32 overflow-y-auto bg-white/20 backdrop-blur-md rounded-xl p-3">
                   {tables.filter(t => t.status === 'AVAILABLE').map(table => {
                     const isDisabled = !selectedTablesForMerge.includes(table._id) && isCapacityMet;
                     
@@ -193,7 +193,7 @@ const CreateOrder = ({ onCreateOrder, onCancel }) => {
         </div>
 
         {/* Order Items */}
-        <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 p-6">
+        <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-gray-900">🍕 Order Items</h3>
             <div className="text-xl font-bold text-green-700">
@@ -204,7 +204,7 @@ const CreateOrder = ({ onCreateOrder, onCancel }) => {
           {orderItems.length > 0 ? (
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {orderItems.map((item) => (
-                <div key={item.key} className="flex items-center justify-between bg-white/30 backdrop-blur-md p-3 rounded-xl border border-white/40">
+                <div key={item.key} className="flex items-center justify-between bg-white/30 backdrop-blur-md p-3 rounded-xl">
                   <div className="flex-1">
                     <div className="font-medium text-gray-900">{item.name}</div>
                     <div className="text-sm text-gray-700">
@@ -260,7 +260,7 @@ const CreateOrder = ({ onCreateOrder, onCancel }) => {
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl border border-white/40"
+            className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl transition-colors"
           >
             Cancel
           </button>
@@ -268,7 +268,7 @@ const CreateOrder = ({ onCreateOrder, onCancel }) => {
           <button
             type="submit"
             disabled={loading || orderItems.length === 0}
-            className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl border border-white/40 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Creating...' : 'Create Order'}
           </button>
@@ -278,7 +278,7 @@ const CreateOrder = ({ onCreateOrder, onCancel }) => {
       {/* Item Selection Modal */}
       {selectedItem && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 max-w-md w-full mx-4 border border-white/40">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">{selectedItem.itemName}</h3>
             
             {/* Variations */}
@@ -326,7 +326,7 @@ const CreateOrder = ({ onCreateOrder, onCancel }) => {
               <button
                 type="button"
                 onClick={closeItemModal}
-                className="px-4 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl border border-white/40"
+                className="px-4 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl transition-colors"
               >
                 Cancel
               </button>
@@ -334,7 +334,7 @@ const CreateOrder = ({ onCreateOrder, onCancel }) => {
                 type="button"
                 onClick={addItemToOrder}
                 disabled={!selectedVariation}
-                className="px-4 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl border border-white/40 disabled:opacity-50"
+                className="px-4 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl transition-colors disabled:opacity-50"
               >
                 Add to Order
               </button>

@@ -51,8 +51,8 @@ const OrderList = ({ orders, onViewOrder, onUpdateStatus, onProcessPayment, onRe
       {/* Split View */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Left Side - Order List */}
-        <div className="bg-white/20 backdrop-blur-xl rounded-2xl border border-white/30 overflow-hidden lg:col-span-1 self-start sticky top-6">
-          <div className="p-4 border-b border-white/30">
+        <div className="bg-white/20 backdrop-blur-xl rounded-2xl overflow-hidden lg:col-span-1 self-start sticky top-6">
+          <div className="p-4">
             <h3 className="text-xl font-bold text-gray-900"><FiShoppingBag className="inline mr-2" />Orders ({filteredOrders.length})</h3>
           </div>
           <div className="overflow-y-auto max-h-[calc(100vh-300px)] p-4 space-y-3">
@@ -60,8 +60,8 @@ const OrderList = ({ orders, onViewOrder, onUpdateStatus, onProcessPayment, onRe
               <div
                 key={order._id}
                 onClick={() => handleOrderClick(order)}
-                className={`bg-white/30 backdrop-blur-md rounded-xl p-4 cursor-pointer transition-colors hover:bg-white/40 border ${
-                  selectedOrder?._id === order._id ? 'border-purple-500 ring-2 ring-purple-500' : 'border-white/30'
+                className={`bg-white/30 backdrop-blur-md rounded-xl p-4 cursor-pointer transition-colors hover:bg-white/40 ${
+                  selectedOrder?._id === order._id ? 'ring-2 ring-purple-500' : ''
                 }`}
               >
                 <div className="flex justify-between items-start mb-2">
@@ -104,17 +104,17 @@ const OrderList = ({ orders, onViewOrder, onUpdateStatus, onProcessPayment, onRe
         </div>
 
         {/* Right Side - Order Details */}
-        <div className="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/30 overflow-hidden lg:col-span-2">
+        <div className="bg-white/15 backdrop-blur-xl rounded-2xl overflow-hidden lg:col-span-2">
           {selectedOrder ? (
             <>
-              <div className="p-4 border-b border-white/30">
+              <div className="p-4">
                 <h3 className="text-xl font-bold text-gray-900"><FiFileText className="inline mr-2" />Order Details</h3>
               </div>
               <div className="p-6 space-y-4">
                 {/* Customer Info & Order Items in Same Row */}
                 <div className="grid grid-cols-2 gap-4">
                   {/* Customer Info */}
-                  <div className="bg-white/30 backdrop-blur-md rounded-xl p-4 border border-white/30">
+                  <div className="bg-white/30 backdrop-blur-md rounded-xl p-4">
                     <h4 className="font-bold text-gray-900 mb-3"><FiUser className="inline mr-2" />Customer Information</h4>
                     <div className="space-y-2 text-sm">
                       <p className="text-gray-900"><span className="font-medium">Name:</span> {selectedOrder.customerName}</p>
@@ -129,11 +129,11 @@ const OrderList = ({ orders, onViewOrder, onUpdateStatus, onProcessPayment, onRe
                   </div>
 
                   {/* Order Items */}
-                  <div className="bg-white/30 backdrop-blur-md rounded-xl p-4 border border-white/30">
+                  <div className="bg-white/30 backdrop-blur-md rounded-xl p-4">
                     <h4 className="font-bold text-gray-900 mb-3"><FiShoppingBag className="inline mr-2" />Order Items</h4>
                     <div className="space-y-2 max-h-60 overflow-y-auto">
                       {selectedOrder.items.map((item, index) => (
-                        <div key={index} className="flex justify-between items-start text-sm bg-white/20 p-2 rounded-lg">
+                        <div key={index} className="flex justify-between items-start text-sm p-2 rounded-lg">
                           <div>
                             <p className="font-medium text-gray-900">{item.quantity}x {item.name}</p>
                             {item.variation && <p className="text-xs text-gray-700">Variation: {item.variation.name}</p>}
@@ -146,7 +146,7 @@ const OrderList = ({ orders, onViewOrder, onUpdateStatus, onProcessPayment, onRe
                 </div>
 
                 {/* Order Summary & Actions */}
-                <div className="bg-white/30 backdrop-blur-md rounded-xl p-4 border border-white/30">
+                <div className="bg-white/30 backdrop-blur-md rounded-xl p-4">
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-gray-900 font-medium">Total Amount:</span>
                     <span className="text-2xl font-bold text-green-700">{formatCurrency(selectedOrder.totalAmount)}</span>
@@ -154,14 +154,14 @@ const OrderList = ({ orders, onViewOrder, onUpdateStatus, onProcessPayment, onRe
                   <div className="flex space-x-2">
                     <button
                       onClick={() => onAddItems && onAddItems(selectedOrder._id)}
-                      className="flex-1 p-3 bg-white/30 backdrop-blur-md hover:bg-white/50 text-gray-900 rounded-xl font-medium border border-white/40"
+                      className="flex-1 p-3 bg-white/30 backdrop-blur-md hover:bg-white/50 text-gray-900 rounded-xl font-medium transition-colors"
                     >
                       <FiPlus className="inline mr-1" />Add
                     </button>
                     {selectedOrder.tableId && selectedOrder.status !== 'PAID' && selectedOrder.status !== 'CANCELLED' && (
                       <button
                         onClick={() => onTransfer(selectedOrder)}
-                        className="flex-1 p-3 bg-white/30 backdrop-blur-md hover:bg-white/50 text-gray-900 rounded-xl font-medium border border-white/40"
+                        className="flex-1 p-3 bg-white/30 backdrop-blur-md hover:bg-white/50 text-gray-900 rounded-xl font-medium transition-colors"
                       >
                         <FiRotateCcw className="inline mr-1" />Transfer
                       </button>
@@ -169,7 +169,7 @@ const OrderList = ({ orders, onViewOrder, onUpdateStatus, onProcessPayment, onRe
                     {!selectedOrder.paymentDetails && (
                       <button
                         onClick={() => onProcessPayment(selectedOrder)}
-                        className="flex-1 p-3 bg-white/30 backdrop-blur-md hover:bg-white/50 text-gray-900 rounded-xl font-medium border border-white/40"
+                        className="flex-1 p-3 bg-white/30 backdrop-blur-md hover:bg-white/50 text-gray-900 rounded-xl font-medium transition-colors"
                       >
                         <FiCreditCard className="inline mr-1" />Pay
                       </button>

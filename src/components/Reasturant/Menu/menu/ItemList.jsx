@@ -126,7 +126,7 @@ const ItemList = ({ onEdit }) => {
         ).map((item, index) => (
           <div 
             key={item._id} 
-            className="bg-white/30 backdrop-blur-md rounded-xl shadow-lg overflow-hidden border border-white/40 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-fadeIn"
+            className="bg-white/30 backdrop-blur-md rounded-xl overflow-hidden hover:bg-white/40 transition-colors animate-fadeIn"
             style={{ animationDelay: `${index * 0.03}s` }}
           >
             {/* Image Section */}
@@ -202,14 +202,14 @@ const ItemList = ({ onEdit }) => {
                 
                 <button
                   onClick={() => handleEdit(item)}
-                  className="flex-1 px-2 py-1.5 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-lg text-xs font-medium transition-all border border-white/40 flex items-center justify-center gap-1"
+                  className="flex-1 px-2 py-1.5 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1"
                 >
                   <FiEdit2 size={12} />
                 </button>
                 
                 <button
                   onClick={() => deleteItem(item._id)}
-                  className="flex-1 px-2 py-1.5 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-lg text-xs font-medium transition-all border border-white/40 flex items-center justify-center gap-1"
+                  className="flex-1 px-2 py-1.5 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1"
                 >
                   <FiTrash2 size={12} />
                 </button>
