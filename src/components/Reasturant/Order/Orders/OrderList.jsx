@@ -66,6 +66,17 @@ const OrderList = ({ orders, onViewOrder, onUpdateStatus, onProcessPayment, onRe
               <span>➕ New Order</span>
             </button>
             
+            <button
+              onClick={() => setActiveTab('history')}
+              className={`px-6 py-3 rounded-xl flex items-center space-x-2 font-medium transition-all transform hover:scale-105 shadow-lg ${
+                activeTab === 'history' 
+                  ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white' 
+                  : 'bg-white/30 text-gray-900 hover:bg-white/40'
+              }`}
+            >
+              <span>📜 History</span>
+            </button>
+            
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}

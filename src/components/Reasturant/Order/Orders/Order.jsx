@@ -3,6 +3,7 @@ import { FiPlus, FiEye } from 'react-icons/fi';
 import OrderList from './OrderList';
 import CreateOrder from './CreateOrder';
 import OrderDetails from './OrderDetails';
+import OrderHistory from './OrderHistory';
 import PaymentModal from '../Payment/PaymentModal';
 import TransferModal from './TransferModal';
 import AddNewOrder from '../AddNewOrder';
@@ -101,6 +102,12 @@ const Order = () => {
           onProcessPayment={handlePaymentClick}
           onBack={() => setActiveTab('list')}
         />
+      )}
+
+      {activeTab === 'history' && (
+        <div className="animate-fadeIn">
+          <OrderHistory onBack={() => setActiveTab('list')} />
+        </div>
       )}
 
       {showPaymentModal && selectedOrder && (
