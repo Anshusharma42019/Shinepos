@@ -19,6 +19,8 @@ const AddItem = ({ onSuccess, onBack }) => {
   const [loading, setLoading] = useState(false);
   const [searchAddon, setSearchAddon] = useState('');
   const [searchVariation, setSearchVariation] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
 
   useEffect(() => {
     fetchAddons();
@@ -52,6 +54,50 @@ const AddItem = ({ onSuccess, onBack }) => {
       }
     } catch (error) {
       console.error('Error fetching variations:', error);
+    }
+  };
+
+  const uploadToCloudinary = async (file, type) => {
+    try {
+      console.log('Creating FormData...');
+      const formData = new FormData();
+      formData.append('file', file);
+      console.log('FormData created');
+
+      const token = localStorage.getItem('token');
+      console.log('Token:', token ? 'exists' : 'missing');
+      
+      const url = `${import.meta.env.VITE_API_URL}/api/upload/media`;
+      console.log('Upload URL:', url);
+      
+      console.log('Sending fetch request...');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      console.log('Response received:', response.status);
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Upload error:', error);
+        throw new Error(error.error || 'Upload failed');
+      }
+      const data = await response.json();
+      console.log('Upload data:', data);
+      return data.url;
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        console.error('Upload timeout');
+        throw new Error('Upload timeout - file may be too large');
+      }
+      console.error('Upload exception:', error);
+      throw error;
     }
   };
 
@@ -122,7 +168,7 @@ const AddItem = ({ onSuccess, onBack }) => {
       {/* Left Side - Addons & Variations */}
       <div className="lg:col-span-1 space-y-6 animate-slideIn" style={{ animationDelay: '0.1s' }}>
         {/* Addons */}
-        <div className="bg-white/20 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/40 p-6">
+        <div className="bg-white/20 backdrop-blur-2xl rounded-2xl p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">🍟 Addons</h3>
           <input
             type="text"
@@ -133,7 +179,7 @@ const AddItem = ({ onSuccess, onBack }) => {
           />
           <div className="space-y-2 max-h-[300px] overflow-y-auto">
             {filteredAddons.map(addon => (
-              <label key={addon._id} className="flex items-center space-x-3 p-3 bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl cursor-pointer hover:bg-white/50">
+              <label key={addon._id} className="flex items-center space-x-3 p-3 bg-white/40 backdrop-blur-lg rounded-xl cursor-pointer hover:bg-white/50 transition-colors">
                 <input
                   type="checkbox"
                   checked={selectedAddons.includes(addon._id)}
@@ -151,7 +197,7 @@ const AddItem = ({ onSuccess, onBack }) => {
         </div>
 
         {/* Variations */}
-        <div className="bg-white/20 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/40 p-6">
+        <div className="bg-white/20 backdrop-blur-2xl rounded-2xl p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">📏 Variations</h3>
           <input
             type="text"
@@ -162,7 +208,7 @@ const AddItem = ({ onSuccess, onBack }) => {
           />
           <div className="space-y-2 max-h-[300px] overflow-y-auto">
             {filteredVariations.map(variation => (
-              <label key={variation._id} className="flex items-center space-x-3 p-3 bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl cursor-pointer hover:bg-white/50">
+              <label key={variation._id} className="flex items-center space-x-3 p-3 bg-white/40 backdrop-blur-lg rounded-xl cursor-pointer hover:bg-white/50 transition-colors">
                 <input
                   type="checkbox"
                   checked={selectedVariations.includes(variation._id)}
@@ -182,7 +228,7 @@ const AddItem = ({ onSuccess, onBack }) => {
       {/* Right Side - Item Details */}
       <div className="lg:col-span-2 space-y-6 animate-slideIn" style={{ animationDelay: '0.2s' }}>
         {/* Basic Information */}
-        <div className="bg-white/20 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/40 p-6">
+        <div className="bg-white/20 backdrop-blur-2xl rounded-2xl p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">🍽️ Item Details</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -255,33 +301,72 @@ const AddItem = ({ onSuccess, onBack }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-900 mb-1">Image URL</label>
+              <label className="block text-sm font-medium text-gray-900 mb-1">Image</label>
               <input
-                type="url"
-                name="imageUrl"
-                value={formData.imageUrl}
-                onChange={handleInputChange}
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    console.log('File selected:', file.name, file.size);
+                    setUploadingImage(true);
+                    try {
+                      console.log('Starting upload...');
+                      const url = await uploadToCloudinary(file, 'image');
+                      console.log('Upload successful:', url);
+                      setFormData(prev => ({ ...prev, imageUrl: url }));
+                    } catch (error) {
+                      console.error('Upload failed:', error);
+                      alert('Failed to upload image: ' + error.message);
+                    } finally {
+                      setUploadingImage(false);
+                    }
+                  }
+                }}
+                disabled={uploadingImage}
                 className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
-                placeholder="https://example.com/image.jpg"
               />
+              {uploadingImage && <p className="text-sm text-gray-900 mt-1">Uploading...</p>}
+              {formData.imageUrl && (
+                <div className="mt-2">
+                  <img src={formData.imageUrl} alt="Preview" className="w-full h-32 object-cover rounded-xl" />
+                </div>
+              )}
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-900 mb-1">Video URL</label>
+              <label className="block text-sm font-medium text-gray-900 mb-1">Video</label>
               <input
-                type="url"
-                name="videoUrl"
-                value={formData.videoUrl}
-                onChange={handleInputChange}
+                type="file"
+                accept="video/*"
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    setUploadingVideo(true);
+                    try {
+                      const url = await uploadToCloudinary(file, 'video');
+                      setFormData(prev => ({ ...prev, videoUrl: url }));
+                    } catch (error) {
+                      alert('Failed to upload video');
+                    }
+                    setUploadingVideo(false);
+                  }
+                }}
+                disabled={uploadingVideo}
                 className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
-                placeholder="https://example.com/video.mp4"
               />
+              {uploadingVideo && <p className="text-sm text-gray-900 mt-1">Uploading...</p>}
+              {formData.videoUrl && (
+                <div className="mt-2">
+                  <video src={formData.videoUrl} controls className="w-full h-32 rounded-xl" />
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Selected Summary */}
-        <div className="bg-white/20 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/40 p-6">
+        <div className="bg-white/20 backdrop-blur-2xl rounded-2xl p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">📋 Summary</h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
@@ -300,14 +385,14 @@ const AddItem = ({ onSuccess, onBack }) => {
           <button
             type="button"
             onClick={onBack}
-            className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl border border-white/40"
+            className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl transition-colors"
           >
             ← Back
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl border border-white/40 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Creating...' : '✓ Create Item'}
           </button>

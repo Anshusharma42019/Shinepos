@@ -49,7 +49,7 @@ const Order = () => {
     <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
         {error && (
-          <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-xl mb-6 shadow-lg animate-slideIn">
+          <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-xl mb-6 animate-slideIn">
             <div className="flex items-center space-x-2">
               <span className="text-2xl">⚠️</span>
               <span className="font-medium">{error}</span>
@@ -58,12 +58,12 @@ const Order = () => {
         )}
 
         {/* Persistent Navigation Header */}
-        <div className="bg-white/30 backdrop-blur-md rounded-2xl shadow-2xl p-4 border border-white/30 mb-6">
+        <div className="bg-white/30 backdrop-blur-md rounded-2xl p-4 mb-6">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => setActiveTab('list')}
-                className={`px-6 py-3 rounded-xl flex items-center space-x-2 font-medium transition-all transform hover:scale-105 shadow-lg ${
+                className={`px-6 py-3 rounded-xl flex items-center space-x-2 font-medium transition-colors ${
                   activeTab === 'list' 
                     ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' 
                     : 'bg-white/30 text-gray-900 hover:bg-white/40'
@@ -74,7 +74,7 @@ const Order = () => {
               
               <button
                 onClick={() => setActiveTab('create')}
-                className={`px-6 py-3 rounded-xl flex items-center space-x-2 font-medium transition-all transform hover:scale-105 shadow-lg ${
+                className={`px-6 py-3 rounded-xl flex items-center space-x-2 font-medium transition-colors ${
                   activeTab === 'create' 
                     ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' 
                     : 'bg-white/30 text-gray-900 hover:bg-white/40'
@@ -85,7 +85,7 @@ const Order = () => {
               
               <button
                 onClick={() => setActiveTab('history')}
-                className={`px-6 py-3 rounded-xl flex items-center space-x-2 font-medium transition-all transform hover:scale-105 shadow-lg ${
+                className={`px-6 py-3 rounded-xl flex items-center space-x-2 font-medium transition-colors ${
                   activeTab === 'history' 
                     ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white' 
                     : 'bg-white/30 text-gray-900 hover:bg-white/40'
@@ -109,7 +109,7 @@ const Order = () => {
             
             <button
               onClick={fetchOrders}
-              className="flex items-center space-x-2 px-6 py-3 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl transition-all transform hover:scale-105 border border-white/40 font-medium"
+              className="flex items-center space-x-2 px-6 py-3 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl transition-colors font-medium"
             >
               <span><FiRefreshCw className="inline mr-2" />Refresh</span>
             </button>

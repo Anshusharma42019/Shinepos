@@ -78,27 +78,27 @@ const KOT = () => {
         <div className="flex space-x-3">
           <button
             onClick={() => setActiveTab('active')}
-            className={`px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105 shadow-lg ${
+            className={`px-6 py-3 rounded-xl font-medium transition-colors ${
               activeTab === 'active' 
-                ? 'bg-white/40 backdrop-blur-lg text-gray-900 border border-white/50' 
-                : 'bg-white/20 backdrop-blur-md text-gray-800 border border-white/30'
+                ? 'bg-white/40 backdrop-blur-lg text-gray-900' 
+                : 'bg-white/20 backdrop-blur-md text-gray-800'
             }`}
           >
             🔥 Active KOTs
           </button>
           <button
             onClick={() => setActiveTab('history')}
-            className={`px-6 py-3 rounded-xl font-medium transition-all transform hover:scale-105 shadow-lg ${
+            className={`px-6 py-3 rounded-xl font-medium transition-colors ${
               activeTab === 'history' 
-                ? 'bg-white/40 backdrop-blur-lg text-gray-900 border border-white/50' 
-                : 'bg-white/20 backdrop-blur-md text-gray-800 border border-white/30'
+                ? 'bg-white/40 backdrop-blur-lg text-gray-900' 
+                : 'bg-white/20 backdrop-blur-md text-gray-800'
             }`}
           >
             📜 History
           </button>
           <button
             onClick={fetchKitchenOrders}
-            className="px-6 py-3 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl border border-white/40 font-medium transition-all transform hover:scale-105"
+            className="px-6 py-3 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl font-medium transition-colors"
           >
             🔄 Refresh
           </button>
@@ -110,9 +110,9 @@ const KOT = () => {
           {kots.map((kot, index) => (
             <div 
               key={kot._id} 
-              className={`bg-white/30 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-105 animate-fadeIn border ${
-                kot.priority === 'URGENT' ? 'border-red-500 border-4 animate-pulse-slow' : 
-                kot.priority === 'HIGH' ? 'border-orange-400 border-2' : 'border-white/40'
+              className={`bg-white/30 backdrop-blur-md rounded-2xl overflow-hidden transition-colors hover:bg-white/35 animate-fadeIn ${
+                kot.priority === 'URGENT' ? 'ring-4 ring-red-500 animate-pulse-slow' : 
+                kot.priority === 'HIGH' ? 'ring-2 ring-orange-400' : ''
               }`}
               style={{ animationDelay: `${index * 0.05}s` }}
             >
@@ -153,7 +153,7 @@ const KOT = () => {
               <div className="p-4">
                 <div className="space-y-3 mb-4">
                   {kot.items?.map((item, index) => (
-                    <div key={index} className="bg-white/40 backdrop-blur-lg rounded-lg p-3 border border-white/50">
+                    <div key={index} className="bg-white/40 backdrop-blur-lg rounded-lg p-3">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center space-x-2">
