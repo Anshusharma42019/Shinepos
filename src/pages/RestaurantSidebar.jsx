@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { FiHome, FiGrid, FiUsers, FiCreditCard, FiClipboard, FiPackage, FiShoppingBag, FiTag, FiStar, FiTarget, FiList, FiPlus, FiSettings, FiLogOut, FiChevronDown } from 'react-icons/fi';
 
 const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
@@ -33,7 +34,12 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   return (
-    <div className="w-64 h-screen flex flex-col relative overflow-hidden">
+    <motion.div 
+      initial={{ x: -264, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className="w-64 h-screen flex flex-col relative overflow-hidden"
+    >
       {/* Background with blur */}
       <div 
         className="absolute inset-0 bg-gradient-to-br from-orange-500/20 via-red-500/20 to-pink-500/20"
@@ -46,7 +52,12 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
       {/* Content */}
       <div className="relative z-10 flex flex-col h-full">
         {/* Header */}
-        <div className="p-6 border-b border-white/20">
+        <motion.div 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.3 }}
+          className="p-6 border-b border-white/20"
+        >
           <div className="flex items-center gap-3 mb-2">
             <div className="text-4xl text-gray-900">🍽️</div>
             <div>
@@ -54,13 +65,16 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
               <p className="text-xs text-gray-700">{user.name || 'Admin'}</p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-          {menuItems.map((item) => (
-            <button
+          {menuItems.map((item, index) => (
+            <motion.button
               key={item.id}
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.3 + index * 0.05, duration: 0.2 }}
               onClick={() => setActiveTab(item.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                 activeTab === item.id
@@ -70,11 +84,16 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
             >
               <span className="text-lg">{item.icon}</span>
               <span>{item.label}</span>
-            </button>
+            </motion.button>
           ))}
 
           {/* Orders Dropdown */}
-          <div className="pt-2">
+          <motion.div 
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.2 }}
+            className="pt-2"
+          >
             <button
               onClick={() => setOrderOpen(!orderOpen)}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
@@ -105,10 +124,14 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
                 ))}
               </div>
             )}
-          </div>
+          </motion.div>
 
           {/* Inventory Dropdown */}
-          <div>
+          <motion.div
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.2 }}
+          >
             <button
               onClick={() => setInventoryOpen(!inventoryOpen)}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
@@ -139,10 +162,14 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
                 ))}
               </div>
             )}
-          </div>
+          </motion.div>
 
           {/* Menu Dropdown */}
-          <div>
+          <motion.div
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.7, duration: 0.2 }}
+          >
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
@@ -173,11 +200,16 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
                 ))}
               </div>
             )}
-          </div>
+          </motion.div>
         </nav>
 
         {/* Logout */}
-        <div className="p-4 border-t border-white/20 space-y-2">
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.8, duration: 0.3 }}
+          className="p-4 border-t border-white/20 space-y-2"
+        >
           <button
             onClick={() => setActiveTab('settings')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
@@ -197,9 +229,9 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
             <FiLogOut className="text-lg" />
             <span>Logout</span>
           </button>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

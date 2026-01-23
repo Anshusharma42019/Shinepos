@@ -77,10 +77,10 @@ const RestaurantDashboard = () => {
     return (
       <motion.div
         key={activeTab}
-        initial={{ opacity: 1 }}
+        initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.1 }}
+        transition={{ duration: 0.2 }}
         className="h-full"
       >
         {content}
@@ -104,7 +104,7 @@ const RestaurantDashboard = () => {
       <SubscriptionBlocker />
       <RestaurantSidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} />
       <div className="flex-1 overflow-auto relative z-10 bg-transparent">
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="wait">
           {renderContent()}
         </AnimatePresence>
       </div>

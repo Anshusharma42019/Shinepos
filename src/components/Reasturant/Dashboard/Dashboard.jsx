@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -27,12 +28,30 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="p-6 bg-transparent min-h-screen">
-      <h1 className="text-3xl font-bold text-white mb-6">Restaurant Dashboard</h1>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="p-6 bg-transparent min-h-screen"
+    >
+      <motion.h1 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.1, duration: 0.3 }}
+        className="text-3xl font-bold text-white mb-6"
+      >
+        Restaurant Dashboard
+      </motion.h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((card, index) => (
-          <div key={index} className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-6 border border-white/20">
+          <motion.div 
+            key={index}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 + index * 0.1, duration: 0.3 }}
+            className="bg-white/10 backdrop-blur-md rounded-lg shadow-md p-6 border border-white/20"
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-200 text-sm">{card.title}</p>
@@ -42,15 +61,20 @@ const Dashboard = () => {
                 {card.icon}
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
-      <div className="mt-8 bg-white/10 backdrop-blur-md rounded-lg shadow-md p-6 border border-white/20">
+      <motion.div 
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.6, duration: 0.3 }}
+        className="mt-8 bg-white/10 backdrop-blur-md rounded-lg shadow-md p-6 border border-white/20"
+      >
         <h2 className="text-xl font-bold text-white mb-4">Recent Orders</h2>
         <p className="text-gray-300">No orders yet</p>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
