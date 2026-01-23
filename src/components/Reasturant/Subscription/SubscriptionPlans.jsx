@@ -38,7 +38,7 @@ const SubscriptionPlans = () => {
 
   return (
     <div className="p-6 animate-fadeIn">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">💳 Subscription Plans</h1>
+      {/* <h1 className="text-3xl font-bold text-gray-900 mb-6">💳 Subscription Plans</h1> */}
 
       {currentPlan && (
         <div className="bg-white/20 backdrop-blur-2xl border border-white/40 rounded-2xl p-6 mb-6 shadow-2xl">

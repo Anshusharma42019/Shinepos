@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import MobileHeader from '../components/MobileHeader';
 import RestaurantSidebar from './RestaurantSidebar';
 import RestaurantDashboardHome from '../components/Reasturant/Dashboard/Dashboard';
 import Category from '../components/Reasturant/Menu/Category/MainCategorys';
@@ -17,6 +18,7 @@ import SubscriptionBlocker from './SubscriptionBlocker';
 
 const RestaurantDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   const backgroundImages = {
@@ -88,8 +90,28 @@ const RestaurantDashboard = () => {
     );
   };
 
+  const getPageTitle = () => {
+    const titles = {
+      dashboard: 'Dashboard',
+      category: 'Categories',
+      menu: 'Menu Items',
+      addons: 'Addons',
+      variations: 'Variations',
+      orders: 'Orders',
+      tables: 'Tables',
+      kot: 'Kitchen',
+      inventory: 'Inventory',
+      'add-inventory': 'Add Inventory',
+      staff: 'Staff',
+      subscription: 'Subscription',
+      settings: 'Settings'
+    };
+    return titles[activeTab] || 'Restaurant POS';
+  };
+
   return (
     <div className="flex h-screen bg-gray-900 relative overflow-hidden">
+      <MobileHeader title={getPageTitle()} onMenuClick={() => setSidebarOpen(true)} />
       <div 
         className="fixed inset-0 transition-opacity duration-700"
         style={{
@@ -102,8 +124,8 @@ const RestaurantDashboard = () => {
         }}
       />
       <SubscriptionBlocker />
-      <RestaurantSidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} />
-      <div className="flex-1 overflow-auto relative z-10 bg-transparent">
+      <RestaurantSidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <div className="flex-1 overflow-auto relative z-10 bg-transparent pt-16 lg:pt-0">
         <AnimatePresence mode="wait">
           {renderContent()}
         </AnimatePresence>

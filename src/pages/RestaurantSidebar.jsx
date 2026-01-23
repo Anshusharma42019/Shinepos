@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiHome, FiGrid, FiUsers, FiCreditCard, FiClipboard, FiPackage, FiShoppingBag, FiTag, FiStar, FiTarget, FiList, FiPlus, FiSettings, FiLogOut, FiChevronDown, FiMenu, FiX } from 'react-icons/fi';
 
-const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
+const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout, sidebarOpen, setSidebarOpen }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [orderOpen, setOrderOpen] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <FiHome /> },
@@ -41,14 +40,6 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-white/40 backdrop-blur-xl rounded-xl text-gray-900 shadow-lg"
-      >
-        {sidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-      </button>
-
       {/* Overlay */}
       {sidebarOpen && (
         <div
@@ -85,12 +76,21 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout }) => {
             transition={{ delay: 0.2, duration: 0.3 }}
             className="p-6 border-b border-white/20"
           >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="text-4xl text-gray-900">🍽️</div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Restaurant POS</h2>
-                <p className="text-xs text-gray-700">{user.name || 'Admin'}</p>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <div className="text-4xl text-gray-900">🍽️</div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Restaurant POS</h2>
+                  <p className="text-xs text-gray-700">{user.name || 'Admin'}</p>
+                </div>
               </div>
+              {/* Close button inside sidebar on mobile */}
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="lg:hidden p-2 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <FiX size={24} className="text-gray-900" />
+              </button>
             </div>
           </motion.div>
 

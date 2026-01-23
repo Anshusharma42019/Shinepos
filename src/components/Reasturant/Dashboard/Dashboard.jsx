@@ -34,14 +34,14 @@ const Dashboard = () => {
       transition={{ duration: 0.3 }}
       className="p-6 bg-transparent min-h-screen"
     >
-      <motion.h1 
+      {/* <motion.h1 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.1, duration: 0.3 }}
         className="text-3xl font-bold text-white mb-6"
       >
         Restaurant Dashboard
-      </motion.h1>
+      </motion.h1> */}
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((card, index) => (

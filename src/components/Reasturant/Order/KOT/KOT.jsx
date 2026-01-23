@@ -74,7 +74,7 @@ const KOT = () => {
   return (
     <div className="p-6 animate-fadeIn">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-900">👨🍳 Kitchen Orders (KOT)</h2>
+        {/* <h2 className="text-3xl font-bold text-gray-900">👨🍳 Kitchen Orders (KOT)</h2> */}
         <div className="flex space-x-3">
           <button
             onClick={() => setActiveTab('active')}
