@@ -24,27 +24,8 @@ export const useOrders = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      // Fetch all tables to map merged table info
-      const tablesResponse = await axios.get(`${API_BASE_URL}/api/table/tables`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const tables = tablesResponse.data.tables;
-      
-      // Enrich orders with merged table info
       const enrichedOrders = response.data.orders
-        .filter(order => order.status !== 'PAID' && order.status !== 'CANCELLED')
-        .map(order => {
-          // Add merged table info
-          let enrichedOrder = { ...order };
-          if (order.mergedTables && order.mergedTables.length > 0) {
-            const mergedTableNumbers = order.mergedTables
-              .map(tableId => tables.find(t => t._id === tableId)?.tableNumber)
-              .filter(Boolean);
-            enrichedOrder.mergedTableNumbers = mergedTableNumbers;
-          }
-          
-          return enrichedOrder;
-        });
+        .filter(order => order.status !== 'PAID' && order.status !== 'CANCELLED');
       
       setOrders(enrichedOrders);
     } catch (err) {
