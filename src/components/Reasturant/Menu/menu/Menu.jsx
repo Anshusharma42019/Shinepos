@@ -28,7 +28,7 @@ const Menu = () => {
 
   return (
     <motion.div key={`list-${refreshKey}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="p-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-auto mx-auto">
         <div className="flex justify-end items-center mb-6">
           <button
             onClick={() => setView('add')}

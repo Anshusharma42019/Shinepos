@@ -90,7 +90,7 @@ const Addon = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2 }}
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-auto mx-auto">
         {renderView()}
       </div>
     </motion.div>

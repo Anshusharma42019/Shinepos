@@ -48,7 +48,7 @@ const Order = () => {
 
   return (
     <div className="min-h-screen p-3 sm:p-4 md:p-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-auto mx-auto">
         {error && (
           <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-xl mb-6 animate-slideIn">
             <div className="flex items-center space-x-2">
