@@ -20,6 +20,11 @@ html, body, #root {
   font-size: 14px;
 }
 
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Food-themed gradient background */
 .food-gradient {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

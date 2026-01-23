@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import KOTHistory from './KOTHistory';
 
 const KOT = () => {
@@ -63,8 +64,18 @@ const KOT = () => {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-center">
-          <div className="text-6xl mb-4 animate-pulse-slow">👨🍳</div>
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-500 border-t-transparent mx-auto"></div>
+          <motion.div 
+            className="text-6xl mb-4"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            👨🍳
+          </motion.div>
+          <motion.div 
+            className="rounded-full h-16 w-16 border-4 border-orange-500 border-t-transparent mx-auto"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
           <p className="mt-4 text-gray-900 font-medium">Loading kitchen orders...</p>
         </div>
       </div>
@@ -72,7 +83,12 @@ const KOT = () => {
   }
 
   return (
-    <div className="p-6 animate-fadeIn">
+    <motion.div 
+      className="p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+    >
       <div className="flex justify-between items-center mb-6">
         {/* <h2 className="text-3xl font-bold text-gray-900">👨🍳 Kitchen Orders (KOT)</h2> */}
         <div className="flex space-x-3">
@@ -108,13 +124,15 @@ const KOT = () => {
       {activeTab === 'active' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {kots.map((kot, index) => (
-            <div 
+            <motion.div 
               key={kot._id} 
-              className={`bg-white/30 backdrop-blur-md rounded-2xl overflow-hidden transition-colors hover:bg-white/35 animate-fadeIn ${
-                kot.priority === 'URGENT' ? 'ring-4 ring-red-500 animate-pulse-slow' : 
+              className={`bg-white/30 backdrop-blur-md rounded-2xl overflow-hidden transition-colors hover:bg-white/35 ${
+                kot.priority === 'URGENT' ? 'ring-4 ring-red-500' : 
                 kot.priority === 'HIGH' ? 'ring-2 ring-orange-400' : ''
               }`}
-              style={{ animationDelay: `${index * 0.05}s` }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={kot.priority === 'URGENT' ? { opacity: 1, y: 0, scale: [1, 1.02, 1] } : { opacity: 1, y: 0 }}
+              transition={kot.priority === 'URGENT' ? { opacity: { delay: index * 0.05, duration: 0.2 }, y: { delay: index * 0.05, duration: 0.2 }, scale: { duration: 1.5, repeat: Infinity } } : { delay: index * 0.05, duration: 0.2 }}
             >
               {/* Header */}
               <div className={`p-4 ${
@@ -191,21 +209,27 @@ const KOT = () => {
                   <option value="CANCELLED">❌ Cancelled</option>
                 </select>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       )}
 
       {activeTab === 'active' && kots.length === 0 && (
         <div className="text-center py-16 bg-white/70 backdrop-blur-md rounded-2xl shadow-xl">
-          <div className="text-6xl mb-4 animate-pulse-slow">🍳</div>
+          <motion.div 
+            className="text-6xl mb-4"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            🍳
+          </motion.div>
           <p className="text-gray-500 text-lg font-medium">No active KOTs in kitchen</p>
           <p className="text-gray-400 text-sm mt-2">Orders will appear here when placed</p>
         </div>
       )}
 
       {activeTab === 'history' && <KOTHistory />}
-    </div>
+    </motion.div>
   );
 };
 

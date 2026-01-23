@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { FiLoader, FiSearch } from 'react-icons/fi';
 
 const VariationList = ({ variations, loading, onAdd, onEdit, onDelete }) => {
@@ -53,7 +54,12 @@ const VariationList = ({ variations, loading, onAdd, onEdit, onDelete }) => {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-center">
-          <FiLoader className="text-6xl mb-4 animate-spin mx-auto text-cyan-500" size={64} />
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          >
+            <FiLoader className="text-6xl mb-4 mx-auto text-cyan-500" size={64} />
+          </motion.div>
           <p className="mt-4 text-gray-600 font-medium">Loading variations...</p>
         </div>
       </div>
@@ -97,8 +103,14 @@ const VariationList = ({ variations, loading, onAdd, onEdit, onDelete }) => {
                   </td>
                 </tr>
               ) : (
-                filteredVariations.map((variation) => (
-                  <tr key={variation._id} className="hover:bg-white/70 transition-colors">
+                filteredVariations.map((variation, index) => (
+                  <motion.tr 
+                    key={variation._id} 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05, duration: 0.2 }}
+                    className="hover:bg-white/70 transition-colors"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{variation.name}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">₹{variation.price}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -136,7 +148,7 @@ const VariationList = ({ variations, loading, onAdd, onEdit, onDelete }) => {
                         Delete
                       </button>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))
               )}
             </tbody>

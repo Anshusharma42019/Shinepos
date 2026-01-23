@@ -60,7 +60,7 @@ const CreateOrder = ({ onCreateOrder, onCancel }) => {
           />
         </div>
         
-        <div className="space-y-2 lg:space-y-3 max-h-[300px] lg:max-h-[calc(100vh-350px)] overflow-y-auto">
+        <div className="grid grid-cols-2 gap-2 lg:gap-3 max-h-[300px] lg:max-h-[calc(100vh-350px)] overflow-y-auto">
           {menuItems.filter(item => 
             item.itemName.toLowerCase().includes(searchQuery.toLowerCase())
           ).map((item) => (
@@ -82,13 +82,13 @@ const CreateOrder = ({ onCreateOrder, onCancel }) => {
                 type="button"
                 onClick={() => openItemModal(item)}
                 disabled={item.status !== 'active'}
-                className={`w-full py-2 px-3 lg:px-4 rounded-xl text-xs lg:text-sm font-medium transition-all ${
+                className={`w-full py-1.5 px-2 rounded-lg text-xs font-medium transition-all ${
                   item.status === 'active'
                     ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg'
                     : 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
                 }`}
               >
-                {item.status === 'active' ? '➕ Add to Order' : 'Not Available'}
+                {item.status === 'active' ? '➕ Add' : 'Not Available'}
               </button>
             </div>
           ))}

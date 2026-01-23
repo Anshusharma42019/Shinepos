@@ -82,11 +82,16 @@ const Variation = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="max-w-7xl mx-auto animate-fadeIn">
+    <motion.div 
+      className="p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+    >
+      <div className="max-w-7xl mx-auto">
         {renderView()}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

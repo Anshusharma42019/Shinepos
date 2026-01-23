@@ -8,25 +8,26 @@ import EditItem from './EditItem';
 const Menu = () => {
   const [view, setView] = useState('list');
   const [editingItem, setEditingItem] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   if (view === 'add') {
     return (
-      <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="p-6">
-        <AddItem onSuccess={() => setView('list')} onBack={() => setView('list')} />
+      <motion.div key="add" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }} className="p-6">
+        <AddItem onSuccess={() => { setView('list'); setRefreshKey(k => k + 1); }} onBack={() => setView('list')} />
       </motion.div>
     );
   }
 
   if (view === 'edit') {
     return (
-      <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="p-6">
-        <EditItem item={editingItem} onSuccess={() => setView('list')} onBack={() => setView('list')} />
+      <motion.div key="edit" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }} className="p-6">
+        <EditItem item={editingItem} onSuccess={() => { setView('list'); setRefreshKey(k => k + 1); }} onBack={() => setView('list')} />
       </motion.div>
     );
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="p-6">
+    <motion.div key={`list-${refreshKey}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-end items-center mb-6">
           <button

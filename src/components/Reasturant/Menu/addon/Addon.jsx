@@ -9,6 +9,7 @@ const Addon = () => {
   const [editingAddon, setEditingAddon] = useState(null);
   const [addons, setAddons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -47,6 +48,7 @@ const Addon = () => {
   const handleBackToList = () => {
     setView('list');
     setEditingAddon(null);
+    setRefreshKey(k => k + 1);
     fetchAddons(); // Refresh data
   };
 
@@ -54,19 +56,19 @@ const Addon = () => {
     switch (view) {
       case 'add':
         return (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }}>
+          <motion.div key="add" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }}>
             <AddAddon onSuccess={handleBackToList} onBack={() => setView('list')} />
           </motion.div>
         );
       case 'edit':
         return (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }}>
+          <motion.div key="edit" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }}>
             <EditAddon addon={editingAddon} onSuccess={handleBackToList} onBack={() => setView('list')} />
           </motion.div>
         );
       default:
         return (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+          <motion.div key={`list-${refreshKey}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
             <div className="flex justify-end items-center mb-6">
               <button
                 onClick={handleAddAddon}
@@ -82,11 +84,16 @@ const Addon = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="max-w-7xl mx-auto animate-fadeIn">
+    <motion.div 
+      className="p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+    >
+      <div className="max-w-7xl mx-auto">
         {renderView()}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

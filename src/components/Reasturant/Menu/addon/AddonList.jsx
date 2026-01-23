@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { FiLoader, FiSearch } from 'react-icons/fi';
 
 const AddonList = ({ addons, loading, onAdd, onEdit, onDelete }) => {
@@ -52,7 +53,12 @@ const AddonList = ({ addons, loading, onAdd, onEdit, onDelete }) => {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-center">
-          <FiLoader className="text-6xl mb-4 animate-spin mx-auto text-purple-500" size={64} />
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          >
+            <FiLoader className="text-6xl mb-4 mx-auto text-purple-500" size={64} />
+          </motion.div>
           <p className="mt-4 text-gray-600 font-medium">Loading addons...</p>
         </div>
       </div>
@@ -98,8 +104,14 @@ const AddonList = ({ addons, loading, onAdd, onEdit, onDelete }) => {
                 </td>
               </tr>
             ) : (
-              filteredAddons.map((addon) => (
-                <tr key={addon._id} className="hover:bg-white/70 transition-colors">
+              filteredAddons.map((addon, index) => (
+                <motion.tr 
+                  key={addon._id} 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05, duration: 0.2 }}
+                  className="hover:bg-white/70 transition-colors"
+                >
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{addon.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">₹{addon.price}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -145,7 +157,7 @@ const AddonList = ({ addons, loading, onAdd, onEdit, onDelete }) => {
                       Delete
                     </button>
                   </td>
-                </tr>
+                </motion.tr>
               ))
             )}
           </tbody>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { FiSearch } from 'react-icons/fi';
 import { useCategory } from './hooks/useCategory';
 
@@ -19,8 +20,18 @@ const CategoryList = ({ onEdit }) => {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-center">
-          <div className="text-6xl mb-4 animate-pulse-slow">🏷️</div>
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto"></div>
+          <motion.div 
+            className="text-6xl mb-4"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            🏷️
+          </motion.div>
+          <motion.div 
+            className="rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
           <p className="mt-4 text-gray-900 font-medium">Loading categories...</p>
         </div>
       </div>
@@ -64,8 +75,14 @@ const CategoryList = ({ onEdit }) => {
                 </td>
               </tr>
             ) : (
-              filteredCategories.map((category) => (
-                <tr key={category._id} className="hover:bg-white/70 transition-colors">
+              filteredCategories.map((category, index) => (
+                <motion.tr 
+                  key={category._id} 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05, duration: 0.2 }}
+                  className="hover:bg-white/70 transition-colors"
+                >
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{category.name}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">{category.description || '-'}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -103,7 +120,7 @@ const CategoryList = ({ onEdit }) => {
                       Delete
                     </button>
                   </td>
-                </tr>
+                </motion.tr>
               ))
             )}
           </tbody>

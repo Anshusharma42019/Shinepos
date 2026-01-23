@@ -52,11 +52,11 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout, sidebarOpen, set
       <motion.div 
         initial={false}
         animate={{ 
-          x: window.innerWidth >= 1024 ? 0 : (sidebarOpen ? 0 : -264),
-          opacity: window.innerWidth >= 1024 ? 1 : (sidebarOpen ? 1 : 0)
+          x: window.innerWidth >= 1024 ? 0 : (sidebarOpen ? 0 : -264)
         }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
         className="fixed lg:relative w-64 h-screen flex flex-col overflow-hidden z-40"
+        style={{ opacity: window.innerWidth >= 1024 ? 1 : (sidebarOpen ? 1 : 0) }}
       >
         {/* Background with blur */}
         <div 
@@ -70,12 +70,7 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout, sidebarOpen, set
         {/* Content */}
         <div className="relative z-10 flex flex-col h-full">
           {/* Header */}
-          <motion.div 
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.3 }}
-            className="p-6 border-b border-white/20"
-          >
+          <div className="p-6 border-b border-white/20">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
                 <div className="text-4xl text-gray-900">🍽️</div>
@@ -92,39 +87,31 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout, sidebarOpen, set
                 <FiX size={24} className="text-gray-900" />
               </button>
             </div>
-          </motion.div>
+          </div>
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4 space-y-1">
             {menuItems.map((item, index) => (
-              <motion.button
+              <button
                 key={item.id}
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.3 + index * 0.05, duration: 0.2 }}
                 onClick={() => handleNavClick(item.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                   activeTab === item.id
-                    ? 'bg-white/40 backdrop-blur-lg text-black shadow-lg border border-white/50'
-                    : 'text-black hover:bg-white/20 backdrop-blur-md border border-transparent'
+                    ? 'bg-white/40 backdrop-blur-lg text-black shadow-lg'
+                    : 'text-black hover:bg-white/20 backdrop-blur-md'
                 }`}
               >
                 <span className="text-lg">{item.icon}</span>
                 <span>{item.label}</span>
-              </motion.button>
+              </button>
             ))}
 
             {/* Orders Dropdown */}
-            <motion.div 
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.2 }}
-              className="pt-2"
-            >
+            <div className="pt-2">
               <button
                 onClick={() => setOrderOpen(!orderOpen)}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  orderOpen ? 'bg-white/40 backdrop-blur-lg text-black border border-white/50' : 'text-black hover:bg-white/20 backdrop-blur-md border border-transparent'
+                  orderOpen ? 'bg-white/40 backdrop-blur-lg text-black' : 'text-black hover:bg-white/20 backdrop-blur-md'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -134,35 +121,36 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout, sidebarOpen, set
                 <FiChevronDown className={`transition-transform ${orderOpen ? 'rotate-180' : ''}`} />
               </button>
               {orderOpen && (
-                <div className="ml-6 mt-1 space-y-1 animate-slideIn">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.15 }}
+                  className="ml-6 mt-1 space-y-1"
+                >
                   {orderSubItems.map((subItem) => (
                     <button
                       key={subItem.id}
                       onClick={() => handleNavClick(subItem.id)}
                       className={`w-full flex items-center gap-2 text-left px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                         activeTab === subItem.id
-                          ? 'bg-white/40 backdrop-blur-lg text-black shadow-md border border-white/50'
-                          : 'text-black hover:bg-white/20 backdrop-blur-md border border-transparent'
+                          ? 'bg-white/40 backdrop-blur-lg text-black shadow-md'
+                          : 'text-black hover:bg-white/20 backdrop-blur-md'
                       }`}
                     >
                       <span className="text-lg">{subItem.icon}</span>
                       <span>{subItem.label}</span>
                     </button>
                   ))}
-                </div>
+                </motion.div>
               )}
-            </motion.div>
+            </div>
 
             {/* Inventory Dropdown */}
-            <motion.div
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.2 }}
-            >
+            <div>
               <button
                 onClick={() => setInventoryOpen(!inventoryOpen)}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  inventoryOpen ? 'bg-white/40 backdrop-blur-lg text-black border border-white/50' : 'text-black hover:bg-white/20 backdrop-blur-md border border-transparent'
+                  inventoryOpen ? 'bg-white/40 backdrop-blur-lg text-black' : 'text-black hover:bg-white/20 backdrop-blur-md'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -172,35 +160,36 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout, sidebarOpen, set
                 <FiChevronDown className={`transition-transform ${inventoryOpen ? 'rotate-180' : ''}`} />
               </button>
               {inventoryOpen && (
-                <div className="ml-6 mt-1 space-y-1 animate-slideIn">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.15 }}
+                  className="ml-6 mt-1 space-y-1"
+                >
                   {inventorySubItems.map((subItem) => (
                     <button
                       key={subItem.id}
                       onClick={() => handleNavClick(subItem.id)}
                       className={`w-full flex items-center gap-2 text-left px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                         activeTab === subItem.id
-                          ? 'bg-white/40 backdrop-blur-lg text-black shadow-md border border-white/50'
-                          : 'text-black hover:bg-white/20 backdrop-blur-md border border-transparent'
+                          ? 'bg-white/40 backdrop-blur-lg text-black shadow-md'
+                          : 'text-black hover:bg-white/20 backdrop-blur-md'
                       }`}
                     >
                       <span className="text-lg">{subItem.icon}</span>
                       <span>{subItem.label}</span>
                     </button>
                   ))}
-                </div>
+                </motion.div>
               )}
-            </motion.div>
+            </div>
 
             {/* Menu Dropdown */}
-            <motion.div
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.7, duration: 0.2 }}
-            >
+            <div>
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  menuOpen ? 'bg-white/40 backdrop-blur-lg text-black border border-white/50' : 'text-black hover:bg-white/20 backdrop-blur-md border border-transparent'
+                  menuOpen ? 'bg-white/40 backdrop-blur-lg text-black' : 'text-black hover:bg-white/20 backdrop-blur-md'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -210,39 +199,39 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout, sidebarOpen, set
                 <FiChevronDown className={`transition-transform ${menuOpen ? 'rotate-180' : ''}`} />
               </button>
               {menuOpen && (
-                <div className="ml-6 mt-1 space-y-1 animate-slideIn">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.15 }}
+                  className="ml-6 mt-1 space-y-1"
+                >
                   {menuSubItems.map((subItem) => (
                     <button
                       key={subItem.id}
                       onClick={() => handleNavClick(subItem.id)}
                       className={`w-full flex items-center gap-2 text-left px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                         activeTab === subItem.id
-                          ? 'bg-white/40 backdrop-blur-lg text-black shadow-md border border-white/50'
-                          : 'text-black hover:bg-white/20 backdrop-blur-md border border-transparent'
+                          ? 'bg-white/40 backdrop-blur-lg text-black shadow-md'
+                          : 'text-black hover:bg-white/20 backdrop-blur-md'
                       }`}
                     >
                       <span className="text-lg">{subItem.icon}</span>
                       <span>{subItem.label}</span>
                     </button>
                   ))}
-                </div>
+                </motion.div>
               )}
-            </motion.div>
+            </div>
           </nav>
 
           {/* Logout */}
-          <motion.div 
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.3 }}
-            className="p-4 border-t border-white/20 space-y-2"
-          >
+          <div className="p-4 border-t border-white/20 space-y-2">
             <button
               onClick={() => handleNavClick('settings')}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                 activeTab === 'settings'
-                  ? 'bg-white/40 backdrop-blur-lg text-black shadow-lg border border-white/50'
-                  : 'text-black hover:bg-white/20 backdrop-blur-md border border-transparent'
+                  ? 'bg-white/40 backdrop-blur-lg text-black shadow-lg'
+                  : 'text-black hover:bg-white/20 backdrop-blur-md'
               }`}
             >
               <span className="text-lg"><FiSettings /></span>
@@ -256,7 +245,7 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout, sidebarOpen, set
               <FiLogOut className="text-lg" />
               <span>Logout</span>
             </button>
-          </motion.div>
+          </div>
         </div>
       </motion.div>
     </>
