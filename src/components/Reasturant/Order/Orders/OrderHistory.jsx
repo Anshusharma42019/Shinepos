@@ -47,16 +47,16 @@ const OrderHistory = () => {
   return (
     <div className="animate-fadeIn space-y-4">
       {historyOrders.length > 0 ? (
-        <div className="bg-white/20 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 overflow-hidden">
-          <table className="w-full">
+        <div className="bg-white/20 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 overflow-x-auto">
+          <table className="w-full min-w-[800px]">
             <thead className="bg-white/30 backdrop-blur-md">
               <tr>
-                <th className="px-4 py-3 text-left font-bold text-gray-900">Customer</th>
-                <th className="px-4 py-3 text-left font-bold text-gray-900">Table</th>
-                <th className="px-4 py-3 text-left font-bold text-gray-900">Items</th>
-                <th className="px-4 py-3 text-left font-bold text-gray-900">Amount</th>
-                <th className="px-4 py-3 text-left font-bold text-gray-900">Status</th>
-                <th className="px-4 py-3 text-left font-bold text-gray-900">Date</th>
+                <th className="px-3 lg:px-4 py-3 text-left font-bold text-gray-900 text-sm">Customer</th>
+                <th className="px-3 lg:px-4 py-3 text-left font-bold text-gray-900 text-sm">Table</th>
+                <th className="px-3 lg:px-4 py-3 text-left font-bold text-gray-900 text-sm">Items</th>
+                <th className="px-3 lg:px-4 py-3 text-left font-bold text-gray-900 text-sm">Amount</th>
+                <th className="px-3 lg:px-4 py-3 text-left font-bold text-gray-900 text-sm">Status</th>
+                <th className="px-3 lg:px-4 py-3 text-left font-bold text-gray-900 text-sm">Date</th>
               </tr>
             </thead>
             <tbody className="bg-white/20 backdrop-blur-md">
@@ -66,49 +66,49 @@ const OrderHistory = () => {
                     className="border-t border-white/20 hover:bg-white/10 transition-all cursor-pointer"
                     onClick={() => setExpandedOrder(expandedOrder === order._id ? null : order._id)}
                   >
-                    <td className="px-4 py-3">
+                    <td className="px-3 lg:px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <FiChevronDown className={`transition-transform ${expandedOrder === order._id ? 'rotate-180' : ''}`} />
-                        <div>
-                          <p className="font-medium text-gray-900">{order.customerName}</p>
+                        <FiChevronDown className={`transition-transform flex-shrink-0 ${expandedOrder === order._id ? 'rotate-180' : ''}`} />
+                        <div className="min-w-0">
+                          <p className="font-medium text-gray-900 text-sm truncate">{order.customerName}</p>
                           {order.customerPhone && (
-                            <p className="text-sm text-gray-700"><FiPhone className="inline mr-1" /> {order.customerPhone}</p>
+                            <p className="text-xs text-gray-700 truncate"><FiPhone className="inline mr-1" /> {order.customerPhone}</p>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-900">{order.tableNumber || 'N/A'}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-1">
+                    <td className="px-3 lg:px-4 py-3 text-gray-900 text-sm">{order.tableNumber || 'N/A'}</td>
+                    <td className="px-3 lg:px-4 py-3">
+                      <div className="flex flex-wrap gap-1 max-w-xs">
                         {expandedOrder === order._id ? (
                           order.items?.map((item, idx) => (
-                            <span key={idx} className="bg-white/30 backdrop-blur-md text-gray-900 text-xs px-2 py-1 rounded">
+                            <span key={idx} className="bg-white/30 backdrop-blur-md text-gray-900 text-xs px-2 py-1 rounded whitespace-nowrap">
                               {item.quantity}x {item.name}
                             </span>
                           ))
                         ) : (
                           <>
                             {order.items?.slice(0, 2).map((item, idx) => (
-                              <span key={idx} className="bg-white/30 backdrop-blur-md text-gray-900 text-xs px-2 py-1 rounded">
+                              <span key={idx} className="bg-white/30 backdrop-blur-md text-gray-900 text-xs px-2 py-1 rounded whitespace-nowrap">
                                 {item.quantity}x {item.name}
                               </span>
                             ))}
                             {order.items?.length > 2 && (
-                              <span className="text-xs text-gray-700">+{order.items.length - 2} more</span>
+                              <span className="text-xs text-gray-700 whitespace-nowrap">+{order.items.length - 2} more</span>
                             )}
                           </>
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-bold text-green-1000">{formatCurrency(order.totalAmount)}</td>
-                    <td className="px-4 py-3">
-                      <span className={`px-4 py-2 rounded-lg text-sm font-bold ${
+                    <td className="px-3 lg:px-4 py-3 font-bold text-green-1000 text-sm whitespace-nowrap">{formatCurrency(order.totalAmount)}</td>
+                    <td className="px-3 lg:px-4 py-3">
+                      <span className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap ${
                         order.status === 'PAID' ? 'bg-gray-600 text-white' : 'bg-red-500/30 text-red-900 backdrop-blur-md'
                       }`}>
                         {order.status === 'PAID' ? 'PAID' : 'CANCELLED'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">
+                    <td className="px-3 lg:px-4 py-3 text-xs text-gray-700 whitespace-nowrap">
                       <div>
                         <p>{new Date(order.createdAt).toLocaleDateString()}</p>
                         <p>{new Date(order.createdAt).toLocaleTimeString()}</p>
