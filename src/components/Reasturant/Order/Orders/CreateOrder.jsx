@@ -1,4 +1,5 @@
 import React from 'react';
+import { FiUser } from 'react-icons/fi';
 import { useCreateOrder } from './hooks/useCreateOrder';
 import FloatingCart from './FloatingCart';
 import OrderItemsList from './OrderItemsList';
@@ -95,7 +96,7 @@ const CreateOrder = ({ onCreateOrder, onCancel }) => {
       {/* Step 1: Customer Details */}
       {step === 1 && (
         <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 lg:p-6 border border-white/20 mx-auto">
-          <h3 className="text-xl font-bold text-white mb-6">👤 Customer Information</h3>
+          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><FiUser /> Customer Information</h3>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
