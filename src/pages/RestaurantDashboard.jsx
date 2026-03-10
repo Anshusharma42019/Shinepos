@@ -11,6 +11,8 @@ import Menu from '../components/Reasturant/Menu/menu/Menu';
 import Addon from '../components/Reasturant/Menu/addon/Addon';
 import Variation from '../components/Reasturant/Menu/variation/Variation';
 import StaffList from '../components/Reasturant/Staff/Staff';
+import StaffDashboard from '../components/Reasturant/Staff/StaffDashboard';
+import AdminOvertimeList from '../components/Reasturant/Staff/AdminOvertimeList';
 import Order from '../components/Reasturant/Order/Orders/Order';
 import Tables from '../components/Reasturant/Order/Tables/Tables';
 import KOT from '../components/Reasturant/Order/KOT/KOT';
@@ -119,6 +121,10 @@ const RestaurantDashboard = () => {
           return isModuleEnabled('inventory') ? <Vendor /> : <ModuleDisabledMessage module="Inventory" />;
         case 'staff':
           return <StaffList />;
+        case 'my-overtime':
+          return <StaffDashboard />;
+        case 'all-overtime':
+          return <AdminOvertimeList />;
         case 'crm':
           return <CRM />;
         case 'attendance':
@@ -164,6 +170,8 @@ const RestaurantDashboard = () => {
       'smart-inventory': 'Smart Inventory',
       'vendors': 'Vendors',
       staff: 'Staff',
+      'my-overtime': 'My Overtime',
+      'all-overtime': 'All Overtime',
       crm: 'CRM',
       attendance: 'Attendance',
       reports: 'Reports',

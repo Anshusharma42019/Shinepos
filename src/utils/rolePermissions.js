@@ -10,23 +10,23 @@ export const ROLES = {
 // Define which pages each role can access
 export const rolePermissions = {
   [ROLES.RESTAURANT_ADMIN]: {
-    pages: ['dashboard', 'analytics', 'tables', 'crm', 'staff', 'attendance', 'subscription', 'orders', 'kot', 'inventory', 'add-inventory', 'smart-inventory', 'vendors', 'category', 'menu', 'addons', 'variations', 'reports', 'sales-report', 'item-analysis', 'staff-performance', 'peak-hours', 'tax-reports', 'profit-loss', 'settings'],
+    pages: ['dashboard', 'analytics', 'tables', 'crm', 'staff', 'my-overtime', 'attendance', 'subscription', 'orders', 'kot', 'inventory', 'add-inventory', 'smart-inventory', 'vendors', 'category', 'menu', 'addons', 'variations', 'reports', 'sales-report', 'item-analysis', 'staff-performance', 'peak-hours', 'tax-reports', 'profit-loss', 'settings'],
     defaultPage: 'dashboard'
   },
   [ROLES.MANAGER]: {
-    pages: ['dashboard', 'analytics', 'tables', 'crm', 'staff', 'attendance', 'orders', 'kot', 'inventory', 'add-inventory', 'smart-inventory', 'vendors', 'category', 'menu', 'addons', 'variations', 'reports', 'sales-report', 'item-analysis', 'staff-performance', 'peak-hours', 'tax-reports', 'profit-loss'],
+    pages: ['dashboard', 'analytics', 'tables', 'crm', 'staff', 'my-overtime', 'attendance', 'orders', 'kot', 'inventory', 'add-inventory', 'smart-inventory', 'vendors', 'category', 'menu', 'addons', 'variations', 'reports', 'sales-report', 'item-analysis', 'staff-performance', 'peak-hours', 'tax-reports', 'profit-loss'],
     defaultPage: 'dashboard'
   },
   [ROLES.CHEF]: {
-    pages: ['dashboard', 'kot', 'orders', 'inventory', 'smart-inventory'],
+    pages: ['dashboard', 'my-overtime', 'kot', 'orders', 'inventory', 'smart-inventory'],
     defaultPage: 'kot'
   },
   [ROLES.WAITER]: {
-    pages: ['dashboard', 'orders', 'tables'],
+    pages: ['dashboard', 'my-overtime', 'orders', 'tables'],
     defaultPage: 'orders'
   },
   [ROLES.CASHIER]: {
-    pages: ['dashboard', 'orders'],
+    pages: ['dashboard', 'my-overtime', 'orders'],
     defaultPage: 'orders'
   }
 };

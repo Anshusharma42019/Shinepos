@@ -1,13 +1,70 @@
 import React, { useState, useEffect } from 'react';
-import { FiAward, FiBarChart2, FiDollarSign, FiUsers, FiUser, FiMail, FiPhone, FiCalendar, FiEdit2, FiTrash2, FiPlus, FiLoader, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { FiAward, FiBarChart2, FiDollarSign, FiUsers, FiUser, FiMail, FiPhone, FiCalendar, FiEdit2, FiTrash2, FiPlus, FiLoader, FiCheckCircle, FiXCircle, FiClock } from 'react-icons/fi';
 
 const StaffList = ({ onAdd, onEdit }) => {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [overtimeModal, setOvertimeModal] = useState({ show: false, staff: null, rate: '' });
+  const [overtimeRecordModal, setOvertimeRecordModal] = useState({ 
+    show: false, 
+    staff: null, 
+    date: new Date().toISOString().split('T')[0],
+    startTime: '',
+    endTime: '',
+    hours: '',
+    notes: ''
+  });
+  const [recordTimers, setRecordTimers] = useState({});
+  const [viewRecordsModal, setViewRecordsModal] = useState({ show: false, staff: null, records: [] });
+  const [assignOvertimeModal, setAssignOvertimeModal] = useState({ 
+    show: false, 
+    staff: null, 
+    date: new Date().toISOString().split('T')[0],
+    startTime: '',
+    endTime: '',
+    hours: '',
+    reason: ''
+  });
 
   useEffect(() => {
     fetchStaff();
   }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const newTimers = {};
+      viewRecordsModal.records?.forEach(record => {
+        if (record.status === 'accepted' && record.respondedAt) {
+          try {
+            const startTime = new Date(record.respondedAt);
+            const now = new Date();
+            let diff = Math.floor((now - startTime) / 1000);
+            const maxSeconds = record.hours * 3600;
+            if (diff >= maxSeconds) {
+              newTimers[record._id] = 'over';
+            } else {
+              const h = Math.floor(diff / 3600);
+              const m = Math.floor((diff % 3600) / 60);
+              const s = diff % 60;
+              newTimers[record._id] = `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            }
+          } catch (e) {
+            newTimers[record._id] = '0:00:00';
+          }
+        }
+      });
+      setRecordTimers(newTimers);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [viewRecordsModal.records]);
+
+  const formatTime12Hour = (time24) => {
+    const [hours, minutes] = time24.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
+  };
 
   const fetchStaff = async () => {
     try {
@@ -18,6 +75,7 @@ const StaffList = ({ onAdd, onEdit }) => {
       
       if (response.ok) {
         const data = await response.json();
+        console.log('Staff data:', data.staff);
         setStaff(data.staff || []);
       }
     } catch (error) {
@@ -46,6 +104,167 @@ const StaffList = ({ onAdd, onEdit }) => {
       }
     } catch (error) {
       console.error('Error deleting staff:', error);
+    }
+  };
+
+  const setOvertimeRate = async () => {
+    if (!overtimeModal.rate || Number(overtimeModal.rate) <= 0) {
+      alert('Please enter a valid overtime rate');
+      return;
+    }
+    
+    try {
+      const token = localStorage.getItem('token');
+      console.log('Sending overtime rate update:', { staffId: overtimeModal.staff._id, rate: Number(overtimeModal.rate) });
+      
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/staff/set-overtime-rate/${overtimeModal.staff._id}`, {
+        method: 'PATCH',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ overtimeRate: Number(overtimeModal.rate) })
+      });
+      
+      const result = await response.json();
+      console.log('Set overtime rate response:', result);
+      
+      if (response.ok) {
+        // Update local state immediately
+        const updatedRate = Number(overtimeModal.rate);
+        setStaff(prevStaff => 
+          prevStaff.map(s => 
+            s._id === overtimeModal.staff._id 
+              ? { ...s, overtimeRate: updatedRate }
+              : s
+          )
+        );
+        setOvertimeModal({ show: false, staff: null, rate: '' });
+        alert('Overtime rate updated to ₹' + updatedRate + '/hr');
+      } else {
+        alert(result.error || 'Failed to update overtime rate');
+      }
+    } catch (error) {
+      console.error('Error setting overtime rate:', error);
+      alert('Error setting overtime rate');
+    }
+  };
+
+  const addOvertimeRecord = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/staff/overtime-record/${overtimeRecordModal.staff._id}`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          date: overtimeRecordModal.date,
+          startTime: overtimeRecordModal.startTime,
+          endTime: overtimeRecordModal.endTime,
+          hours: Number(overtimeRecordModal.hours),
+          notes: overtimeRecordModal.notes
+        })
+      });
+      
+      if (response.ok) {
+        alert('Overtime record added successfully!');
+        setOvertimeRecordModal({ show: false, staff: null, date: '', startTime: '', endTime: '', hours: '', notes: '' });
+      }
+    } catch (error) {
+      console.error('Error adding overtime record:', error);
+    }
+  };
+
+  const completeOvertimeRecord = async (recordId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/staff/overtime/${recordId}/complete`, {
+        method: 'PATCH',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: 'completed' })
+      });
+      
+      if (response.ok) {
+        alert('Overtime marked as completed!');
+        viewOvertimeRecords(viewRecordsModal.staff);
+      }
+    } catch (error) {
+      console.error('Error completing overtime:', error);
+    }
+  };
+
+  const declineOvertimeRecord = async (recordId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/staff/overtime/${recordId}/respond`, {
+        method: 'PATCH',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: 'declined' })
+      });
+      
+      if (response.ok) {
+        alert('Overtime declined!');
+        viewOvertimeRecords(viewRecordsModal.staff);
+      }
+    } catch (error) {
+      console.error('Error declining overtime:', error);
+    }
+  };
+
+  const viewOvertimeRecords = async (member) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/staff/staff-overtime-records/${member._id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setViewRecordsModal({ show: true, staff: member, records: data.records });
+      }
+    } catch (error) {
+      console.error('Error fetching overtime records:', error);
+    }
+  };
+
+  const assignOvertimeRequest = async () => {
+    if (!assignOvertimeModal.hours || Number(assignOvertimeModal.hours) <= 0) {
+      alert('Please enter valid hours');
+      return;
+    }
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/staff/assign-overtime/${assignOvertimeModal.staff._id}`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          date: assignOvertimeModal.date,
+          startTime: assignOvertimeModal.startTime,
+          endTime: assignOvertimeModal.endTime,
+          hours: Number(assignOvertimeModal.hours),
+          reason: assignOvertimeModal.reason
+        })
+      });
+      
+      if (response.ok) {
+        alert('Overtime assigned successfully!');
+        setAssignOvertimeModal({ show: false, staff: null, date: '', startTime: '', endTime: '', hours: '', reason: '' });
+      }
+    } catch (error) {
+      console.error('Error assigning overtime:', error);
+      alert('Error assigning overtime');
     }
   };
 
@@ -120,7 +339,18 @@ const StaffList = ({ onAdd, onEdit }) => {
               
               <div className="flex items-center gap-2 text-sm">
                 <FiDollarSign className="text-lg text-white" />
-                <span className="text-white font-medium">₹{member.hourlyRate || 0}/hr</span>
+                <span className="text-white font-medium">
+                  {member.salaryType === 'fixed' && `₹${member.salaryAmount || 0}/month`}
+                  {member.salaryType === 'hourly' && `₹${member.hourlyRate || 0}/hr`}
+                  {member.salaryType === 'daily' && `₹${member.dayRate || 0}/day`}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2 text-sm">
+                <FiClock className="text-lg text-white" />
+                <span className={`font-medium ${member.overtimeRate > 0 ? 'text-white' : 'text-yellow-300'}`}>
+                  OT: ₹{member.overtimeRate || 0}/hr {member.overtimeRate === 0 && '⚠️'}
+                </span>
               </div>
               
               <div className="flex items-center gap-2 text-sm">
@@ -133,15 +363,27 @@ const StaffList = ({ onAdd, onEdit }) => {
             <div className="p-4 pt-0 flex gap-2">
               <button
                 onClick={() => onEdit(member)}
-                className="flex-1 px-4 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-white rounded-lg text-sm font-medium transition-all border border-white/40 flex items-center justify-center gap-2"
+                className="flex-1 px-3 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-white rounded-lg text-xs font-medium transition-all border border-white/40 flex items-center justify-center gap-1"
               >
-                <FiEdit2 /> Edit
+                <FiEdit2 size={14} /> Edit
+              </button>
+              <button
+                onClick={() => setAssignOvertimeModal({ show: true, staff: member, date: new Date().toISOString().split('T')[0], startTime: member.shiftSchedule?.fixedShift?.endTime || '', endTime: '', hours: '', reason: '' })}
+                className="flex-1 px-3 py-2 bg-yellow-500/80 backdrop-blur-md hover:bg-yellow-600 text-white rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1"
+              >
+                <FiClock size={14} /> Assign
+              </button>
+              <button
+                onClick={() => viewOvertimeRecords(member)}
+                className="flex-1 px-3 py-2 bg-purple-500/80 backdrop-blur-md hover:bg-purple-600 text-white rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1"
+              >
+                <FiBarChart2 size={14} /> View
               </button>
               <button
                 onClick={() => deleteStaff(member._id)}
-                className="flex-1 px-4 py-2 bg-red-500/80 backdrop-blur-md hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
+                className="flex-1 px-3 py-2 bg-red-500/80 backdrop-blur-md hover:bg-red-600 text-white rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1"
               >
-                <FiTrash2 /> Delete
+                <FiTrash2 size={14} /> Del
               </button>
             </div>
           </div>
@@ -153,6 +395,249 @@ const StaffList = ({ onAdd, onEdit }) => {
           <FiUsers className="text-6xl mb-4 mx-auto text-gray-400" size={64} />
           <p className="text-gray-500 text-lg font-medium">No staff members found</p>
           <p className="text-gray-400 text-sm mt-2">Add some staff to get started</p>
+        </div>
+      )}
+
+      {/* Overtime Rate Modal */}
+      {overtimeModal.show && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 w-96 shadow-2xl border border-white/40">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Set Overtime Rate</h3>
+            <p className="text-gray-600 mb-2">Staff: <span className="font-semibold">{overtimeModal.staff?.name}</span></p>
+            <p className="text-sm text-gray-500 mb-4">Current Rate: ₹{overtimeModal.staff?.overtimeRate || 0}/hr</p>
+            <label className="block text-sm font-medium text-gray-700 mb-2">New Overtime Rate (₹/hour)</label>
+            <input
+              type="number"
+              value={overtimeModal.rate}
+              onChange={(e) => setOvertimeModal({ ...overtimeModal, rate: e.target.value })}
+              placeholder="Enter overtime rate (e.g., 150)"
+              min="0"
+              step="10"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => setOvertimeModal({ show: false, staff: null, rate: '' })}
+                className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={setOvertimeRate}
+                className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Overtime Record Modal */}
+      {overtimeRecordModal.show && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 w-96 shadow-2xl border border-white/40">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Add Overtime Record</h3>
+            <p className="text-gray-600 mb-2">Staff: <span className="font-semibold">{overtimeRecordModal.staff?.name}</span></p>
+            <p className="text-sm text-blue-600 mb-2">Current OT Rate: ₹{overtimeRecordModal.staff?.overtimeRate || 0}/hr</p>
+            {overtimeRecordModal.staff?.shiftSchedule?.fixedShift && (
+              <p className="text-xs text-gray-500 mb-2">
+                Shift ({formatTime12Hour(overtimeRecordModal.staff.shiftSchedule.fixedShift.startTime)} - {formatTime12Hour(overtimeRecordModal.staff.shiftSchedule.fixedShift.endTime)})
+              </p>
+            )}
+            <p className="text-xs text-orange-600 mb-4">Overtime starts after shift end time</p>
+            <div className="space-y-3">
+              <input
+                type="date"
+                value={overtimeRecordModal.date}
+                onChange={(e) => setOvertimeRecordModal({ ...overtimeRecordModal, date: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+              <input
+                type="time"
+                value={overtimeRecordModal.startTime}
+                onChange={(e) => setOvertimeRecordModal({ ...overtimeRecordModal, startTime: e.target.value })}
+                placeholder="Start Time"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+              <input
+                type="time"
+                value={overtimeRecordModal.endTime}
+                onChange={(e) => setOvertimeRecordModal({ ...overtimeRecordModal, endTime: e.target.value })}
+                placeholder="End Time"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+              <input
+                type="number"
+                value={overtimeRecordModal.hours}
+                onChange={(e) => setOvertimeRecordModal({ ...overtimeRecordModal, hours: e.target.value })}
+                placeholder="Hours"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+              <textarea
+                value={overtimeRecordModal.notes}
+                onChange={(e) => setOvertimeRecordModal({ ...overtimeRecordModal, notes: e.target.value })}
+                placeholder="Notes (optional)"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                rows="2"
+              />
+            </div>
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => setOvertimeRecordModal({ show: false, staff: null, date: '', startTime: '', endTime: '', hours: '', notes: '' })}
+                className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={addOvertimeRecord}
+                className="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Assign Overtime Modal */}
+      {assignOvertimeModal.show && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 w-96 shadow-2xl border border-white/40">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Assign Overtime</h3>
+            <p className="text-gray-600 mb-4">Staff: <span className="font-semibold">{assignOvertimeModal.staff?.name}</span></p>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                <input
+                  type="date"
+                  value={assignOvertimeModal.date}
+                  onChange={(e) => setAssignOvertimeModal({ ...assignOvertimeModal, date: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                />
+              </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                <input
+                  type="time"
+                  value={assignOvertimeModal.startTime}
+                  onChange={(e) => setAssignOvertimeModal({ ...assignOvertimeModal, startTime: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                <input
+                  type="time"
+                  value={assignOvertimeModal.endTime}
+                  onChange={(e) => setAssignOvertimeModal({ ...assignOvertimeModal, endTime: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Hours</label>
+                <input
+                  type="number"
+                  value={assignOvertimeModal.hours}
+                  onChange={(e) => setAssignOvertimeModal({ ...assignOvertimeModal, hours: e.target.value })}
+                  placeholder="Enter hours"
+                  min="0"
+                  step="0.5"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Reason (optional)</label>
+                <textarea
+                  value={assignOvertimeModal.reason}
+                  onChange={(e) => setAssignOvertimeModal({ ...assignOvertimeModal, reason: e.target.value })}
+                  placeholder="Why is overtime needed?"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  rows="2"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => setAssignOvertimeModal({ show: false, staff: null, date: '', hours: '', reason: '' })}
+                className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={assignOvertimeRequest}
+                className="flex-1 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium"
+              >
+                Assign
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Overtime Records Modal */}
+      {viewRecordsModal.show && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 w-[600px] max-h-[80vh] overflow-y-auto shadow-2xl border border-white/40">
+            <h3 className="text-xl font-bold text-gray-800 mb-2">Overtime Records - {viewRecordsModal.staff?.name}</h3>
+            <p className="text-sm text-blue-600 mb-4">Current OT Rate: ₹{viewRecordsModal.staff?.overtimeRate || 0}/hr</p>
+            {viewRecordsModal.records.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">No overtime records found</p>
+            ) : (
+              <div className="space-y-3">
+                {viewRecordsModal.records.map((record, idx) => (
+                  <div key={idx} className="bg-white/50 p-4 rounded-lg border border-gray-200">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <p className="font-semibold text-gray-800">{new Date(record.date).toLocaleDateString()}</p>
+                        <p className="text-sm text-gray-600">{record.startTime} - {record.endTime}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-green-600">₹{record.amount || 0}</p>
+                        <p className="text-xs text-gray-500">{record.hours}h @ ₹{record.rate || 0}/h</p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <p className="text-xs text-gray-600 capitalize">Status: <span className={`font-semibold ${
+                        record.status === 'completed' ? 'text-green-600' :
+                        record.status === 'accepted' ? 'text-blue-600' :
+                        record.status === 'pending' ? 'text-yellow-600' :
+                        'text-red-600'
+                      }`}>{record.status}</span></p>
+                      {record.status === 'accepted' && (
+                        recordTimers[record._id] === 'over' ? (
+                          <button
+                            onClick={() => completeOvertimeRecord(record._id)}
+                            className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-xs font-bold"
+                          >
+                            Complete
+                          </button>
+                        ) : (
+                          <div className="flex gap-2">
+                            <span className="text-xs font-semibold text-green-600">
+                              Running: {recordTimers[record._id] || '0:00:00'}
+                            </span>
+                            <button
+                              onClick={() => declineOvertimeRecord(record._id)}
+                              className="px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs font-bold"
+                            >
+                              Decline
+                            </button>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button
+              onClick={() => setViewRecordsModal({ show: false, staff: null, records: [] })}
+              className="w-full mt-4 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg font-medium"
+            >
+              Close
+            </button>
+          </div>
         </div>
       )}
     </div>
