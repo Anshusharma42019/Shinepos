@@ -6,7 +6,11 @@ const EditStaff = ({ staff, onSuccess, onBack }) => {
     email: staff.email || '',
     phone: staff.phone || '',
     role: staff.role || 'CASHIER',
+    salaryType: staff.salaryType || 'fixed',
+    salaryAmount: staff.salaryAmount || '',
     hourlyRate: staff.hourlyRate || '',
+    dayRate: staff.dayRate || '',
+    overtimeRate: staff.overtimeRate || '',
     permissions: staff.permissions || [],
     shiftSchedule: staff.shiftSchedule || {
       shiftType: 'fixed',
@@ -36,7 +40,11 @@ const EditStaff = ({ staff, onSuccess, onBack }) => {
           email: formData.email,
           phone: formData.phone,
           role: formData.role,
+          salaryType: formData.salaryType,
+          salaryAmount: Number(formData.salaryAmount),
           hourlyRate: Number(formData.hourlyRate),
+          dayRate: Number(formData.dayRate),
+          overtimeRate: Number(formData.overtimeRate),
           permissions: formData.permissions,
           shiftSchedule: formData.shiftSchedule
         })
@@ -145,13 +153,72 @@ const EditStaff = ({ staff, onSuccess, onBack }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white mb-1">Hourly Rate *</label>
-              <input
-                type="number"
-                name="hourlyRate"
-                value={formData.hourlyRate}
+              <label className="block text-sm font-medium text-white mb-1">Salary Type *</label>
+              <select
+                name="salaryType"
+                value={formData.salaryType}
                 onChange={handleChange}
                 required
+                className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
+              >
+                <option value="fixed">💰 Fixed Salary</option>
+                <option value="hourly">⏰ Hourly Rate</option>
+                <option value="daily">📅 Day Rate</option>
+              </select>
+            </div>
+
+            {formData.salaryType === 'fixed' && (
+              <div>
+                <label className="block text-sm font-medium text-white mb-1">Fixed Salary Amount *</label>
+                <input
+                  type="number"
+                  name="salaryAmount"
+                  value={formData.salaryAmount}
+                  onChange={handleChange}
+                  required
+                  min="0"
+                  className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
+                />
+              </div>
+            )}
+
+            {formData.salaryType === 'hourly' && (
+              <div>
+                <label className="block text-sm font-medium text-white mb-1">Hourly Rate *</label>
+                <input
+                  type="number"
+                  name="hourlyRate"
+                  value={formData.hourlyRate}
+                  onChange={handleChange}
+                  required
+                  min="0"
+                  className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
+                />
+              </div>
+            )}
+
+            {formData.salaryType === 'daily' && (
+              <div>
+                <label className="block text-sm font-medium text-white mb-1">Day Rate *</label>
+                <input
+                  type="number"
+                  name="dayRate"
+                  value={formData.dayRate}
+                  onChange={handleChange}
+                  required
+                  min="0"
+                  className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium text-white mb-1">Overtime Rate (Optional)</label>
+              <input
+                type="number"
+                name="overtimeRate"
+                value={formData.overtimeRate}
+                onChange={handleChange}
                 min="0"
                 className="w-full bg-white/40 backdrop-blur-lg border border-white/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
               />

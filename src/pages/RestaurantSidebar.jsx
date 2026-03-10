@@ -20,6 +20,8 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout, sidebarOpen, set
     { id: 'tables', label: 'Tables', icon: <FiGrid /> },
     { id: 'crm', label: 'CRM', icon: <FiUserCheck /> },
     { id: 'staff', label: 'Staff', icon: <FiUsers /> },
+    { id: 'my-overtime', label: 'My Overtime', icon: <FiClock /> },
+    { id: 'all-overtime', label: 'All Overtime', icon: <FiClock /> },
     { id: 'attendance', label: 'Attendance', icon: <FiClock /> },
     { id: 'subscription', label: 'Subscription', icon: <FiCreditCard /> }
   ];
@@ -140,126 +142,127 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout, sidebarOpen, set
 
             {/* Orders Dropdown */}
             {showOrdersDropdown && (
-            <div className="pt-2">
-              <button
-                onClick={() => setOrderOpen(!orderOpen)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  orderOpen ? 'bg-white/40 backdrop-blur-lg text-black' : 'text-black hover:bg-white/20 backdrop-blur-md'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-lg"><FiClipboard /></span>
-                  <span>Orders</span>
-                </div>
-                <FiChevronDown className={`transition-transform ${orderOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {orderOpen && (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.15 }}
-                  className="ml-6 mt-1 space-y-1"
+              <div className="pt-2">
+                <button
+                  onClick={() => setOrderOpen(!orderOpen)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                    orderOpen ? 'bg-white/40 backdrop-blur-lg text-black' : 'text-black hover:bg-white/20 backdrop-blur-md'
+                  }`}
                 >
-                  {filteredOrderSubItems.map((subItem) => (
-                    <button
-                      key={subItem.id}
-                      onClick={() => handleNavClick(subItem.id)}
-                      className={`w-full flex items-center gap-2 text-left px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                        activeTab === subItem.id
-                          ? 'bg-white/40 backdrop-blur-lg text-black shadow-md'
-                          : 'text-black hover:bg-white/20 backdrop-blur-md'
-                      }`}
-                    >
-                      <span className="text-lg">{subItem.icon}</span>
-                      <span>{subItem.label}</span>
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg"><FiClipboard /></span>
+                    <span>Orders</span>
+                  </div>
+                  <FiChevronDown className={`transition-transform ${orderOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {orderOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.15 }}
+                    className="ml-6 mt-1 space-y-1"
+                  >
+                    {filteredOrderSubItems.map((subItem) => (
+                      <button
+                        key={subItem.id}
+                        onClick={() => handleNavClick(subItem.id)}
+                        className={`w-full flex items-center gap-2 text-left px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                          activeTab === subItem.id
+                            ? 'bg-white/40 backdrop-blur-lg text-black shadow-md'
+                            : 'text-black hover:bg-white/20 backdrop-blur-md'
+                        }`}
+                      >
+                        <span className="text-lg">{subItem.icon}</span>
+                        <span>{subItem.label}</span>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </div>
             )}
 
             {/* Inventory Dropdown */}
             {showInventoryDropdown && (
-            <div>
-              <button
-                onClick={() => setInventoryOpen(!inventoryOpen)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  inventoryOpen ? 'bg-white/40 backdrop-blur-lg text-black' : 'text-black hover:bg-white/20 backdrop-blur-md'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-lg"><FiPackage /></span>
-                  <span>Inventory</span>
-                </div>
-                <FiChevronDown className={`transition-transform ${inventoryOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {inventoryOpen && (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.15 }}
-                  className="ml-6 mt-1 space-y-1"
+              <div>
+                <button
+                  onClick={() => setInventoryOpen(!inventoryOpen)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                    inventoryOpen ? 'bg-white/40 backdrop-blur-lg text-black' : 'text-black hover:bg-white/20 backdrop-blur-md'
+                  }`}
                 >
-                  {filteredInventorySubItems.map((subItem) => (
-                    <button
-                      key={subItem.id}
-                      onClick={() => handleNavClick(subItem.id)}
-                      className={`w-full flex items-center gap-2 text-left px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                        activeTab === subItem.id
-                          ? 'bg-white/40 backdrop-blur-lg text-black shadow-md'
-                          : 'text-black hover:bg-white/20 backdrop-blur-md'
-                      }`}
-                    >
-                      <span className="text-lg">{subItem.icon}</span>
-                      <span>{subItem.label}</span>
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg"><FiPackage /></span>
+                    <span>Inventory</span>
+                  </div>
+                  <FiChevronDown className={`transition-transform ${inventoryOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {inventoryOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.15 }}
+                    className="ml-6 mt-1 space-y-1"
+                  >
+                    {filteredInventorySubItems.map((subItem) => (
+                      <button
+                        key={subItem.id}
+                        onClick={() => handleNavClick(subItem.id)}
+                        className={`w-full flex items-center gap-2 text-left px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                          activeTab === subItem.id
+                            ? 'bg-white/40 backdrop-blur-lg text-black shadow-md'
+                            : 'text-black hover:bg-white/20 backdrop-blur-md'
+                        }`}
+                      >
+                        <span className="text-lg">{subItem.icon}</span>
+                        <span>{subItem.label}</span>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </div>
             )}
 
             {/* Menu Dropdown */}
             {showMenuDropdown && (
-            <div>
-              <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  menuOpen ? 'bg-white/40 backdrop-blur-lg text-black' : 'text-black hover:bg-white/20 backdrop-blur-md'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-lg"><FiShoppingBag /></span>
-                  <span>Menu</span>
-                </div>
-                <FiChevronDown className={`transition-transform ${menuOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {menuOpen && (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.15 }}
-                  className="ml-6 mt-1 space-y-1"
+              <div>
+                <button
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                    menuOpen ? 'bg-white/40 backdrop-blur-lg text-black' : 'text-black hover:bg-white/20 backdrop-blur-md'
+                  }`}
                 >
-                  {filteredMenuSubItems.map((subItem) => (
-                    <button
-                      key={subItem.id}
-                      onClick={() => handleNavClick(subItem.id)}
-                      className={`w-full flex items-center gap-2 text-left px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                        activeTab === subItem.id
-                          ? 'bg-white/40 backdrop-blur-lg text-black shadow-md'
-                          : 'text-black hover:bg-white/20 backdrop-blur-md'
-                      }`}
-                    >
-                      <span className="text-lg">{subItem.icon}</span>
-                      <span>{subItem.label}</span>
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg"><FiShoppingBag /></span>
+                    <span>Menu</span>
+                  </div>
+                  <FiChevronDown className={`transition-transform ${menuOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {menuOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.15 }}
+                    className="ml-6 mt-1 space-y-1"
+                  >
+                    {filteredMenuSubItems.map((subItem) => (
+                      <button
+                        key={subItem.id}
+                        onClick={() => handleNavClick(subItem.id)}
+                        className={`w-full flex items-center gap-2 text-left px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                          activeTab === subItem.id
+                            ? 'bg-white/40 backdrop-blur-lg text-black shadow-md'
+                            : 'text-black hover:bg-white/20 backdrop-blur-md'
+                        }`}
+                      >
+                        <span className="text-lg">{subItem.icon}</span>
+                        <span>{subItem.label}</span>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </div>
             )}
+
             {/* Reports */}
             {showReportsDropdown && (
               <button
@@ -279,17 +282,17 @@ const RestaurantSidebar = ({ activeTab, setActiveTab, onLogout, sidebarOpen, set
           {/* Logout */}
           <div className="p-4 border-t border-white/20 space-y-2">
             {hasAccess(userRole, 'settings') && (
-            <button
-              onClick={() => handleNavClick('settings')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                activeTab === 'settings'
-                  ? 'bg-white/40 backdrop-blur-lg text-black shadow-lg'
-                  : 'text-black hover:bg-white/20 backdrop-blur-md'
-              }`}
-            >
-              <span className="text-lg"><FiSettings /></span>
-              <span>Settings</span>
-            </button>
+              <button
+                onClick={() => handleNavClick('settings')}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                  activeTab === 'settings'
+                    ? 'bg-white/40 backdrop-blur-lg text-black shadow-lg'
+                    : 'text-black hover:bg-white/20 backdrop-blur-md'
+                }`}
+              >
+                <span className="text-lg"><FiSettings /></span>
+                <span>Settings</span>
+              </button>
             )}
             
             <button
