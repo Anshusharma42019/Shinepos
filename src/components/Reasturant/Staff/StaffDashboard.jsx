@@ -360,15 +360,7 @@ const StaffDashboard = () => {
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">Date</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">Time</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-white">Hours</th>
-                {userRole === 'RESTAURANT_ADMIN' && (
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-white">Amount</th>
-                )}
-                {userRole !== 'RESTAURANT_ADMIN' && (
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-white">Reason</th>
-                )}
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">Status</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">Result</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">Action</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white">Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -380,99 +372,7 @@ const StaffDashboard = () => {
                   <td className="px-6 py-4 text-sm text-white">{new Date(request.date).toLocaleDateString()}</td>
                   <td className="px-6 py-4 text-sm text-white">{formatTime12Hour(request.startTime)} - {formatTime12Hour(request.endTime)}</td>
                   <td className="px-6 py-4 text-sm text-white">{formatDecimalToTime(request.hours)}</td>
-                  {userRole === 'RESTAURANT_ADMIN' && (
-                    <td className="px-6 py-4 text-sm text-white font-semibold">₹{request.amount || 0}</td>
-                  )}
-                  {userRole !== 'RESTAURANT_ADMIN' && (
-                    <td className="px-6 py-4 text-sm text-gray-300">{request.reason || '-'}</td>
-                  )}
-                  <td className="px-6 py-4 text-sm">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                      request.status === 'pending' ? 'bg-yellow-500/30 text-yellow-300' :
-                      request.status === 'accepted' ? 'bg-green-500/30 text-green-300' :
-                      'bg-red-500/30 text-red-300'
-                    }`}>
-                      {request.status === 'accepted' ? '✓ Accepted' : request.status === 'declined' ? '✗ Declined' : 'Pending'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    {userRole === 'RESTAURANT_ADMIN' && request.status === 'completed' && (
-                      <span className="text-xs font-semibold text-green-300">✓ Complete {request.completedAt && new Date(request.completedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}</span>
-                    )}
-                    {userRole === 'RESTAURANT_ADMIN' && request.status === 'declined' && (
-                      <span className="text-xs font-semibold text-red-300">✗ Decline {formatElapsedTime(request.actualHoursWorked)}</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    {userRole === 'RESTAURANT_ADMIN' && request.status === 'accepted' && (
-                      <div className="flex gap-2 items-center justify-center flex-wrap">
-                        {timeStatus[request._id] === 'over' ? (
-                          <button
-                            onClick={() => completeOvertime(request._id)}
-                            className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-xs font-bold whitespace-nowrap"
-                          >
-                            Complete
-                          </button>
-                        ) : (
-                          <>
-                            <span className="text-xs font-semibold text-green-300 whitespace-nowrap">
-                              {timeStatus[request._id] || '0:00:00'}
-                            </span>
-                            <button
-                              onClick={() => completeOvertime(request._id)}
-                              className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-xs font-bold whitespace-nowrap"
-                            >
-                              Complete
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    )}
-                    {userRole !== 'RESTAURANT_ADMIN' && (
-                      <>
-                        {request.status === 'pending' && (
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => respondToOvertime(request._id, 'accepted')}
-                              className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-xs font-medium"
-                            >
-                              Accept
-                            </button>
-                            <button
-                              onClick={() => respondToOvertime(request._id, 'declined')}
-                              className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs font-medium"
-                            >
-                              Decline
-                            </button>
-                          </div>
-                        )}
-                        {request.status === 'accepted' && (
-                          <div className="flex items-center gap-2">
-                            {timeStatus[request._id] === 'over' ? (
-                              <button
-                                onClick={() => completeOvertime(request._id)}
-                                className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-xs font-bold"
-                              >
-                                Complete
-                              </button>
-                            ) : (
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-xs font-semibold text-green-300 whitespace-nowrap">
-                                  Running: {timeStatus[request._id] || '0:00:00'}
-                                </span>
-                                <button
-                                  onClick={() => declineOvertime(request._id)}
-                                  className="px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs font-bold whitespace-nowrap"
-                                >
-                                  Decline
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </td>
+                  <td className="px-6 py-4 text-sm text-white font-semibold">₹{request.amount || 0}</td>
                 </tr>
               ))}
             </tbody>
