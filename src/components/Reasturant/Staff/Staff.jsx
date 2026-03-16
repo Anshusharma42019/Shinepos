@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import StaffList from './StaffList';
 import AddStaff from './AddStaff';
 import EditStaff from './EditStaff';
+import SalaryManagement from './SalaryManagement';
 
 const Staff = () => {
   const [view, setView] = useState('list');
@@ -16,6 +17,10 @@ const Staff = () => {
     setView('edit');
   };
 
+  const handleSalaryManagement = () => {
+    setView('salary');
+  };
+
   const handleBackToList = () => {
     setView('list');
     setEditingStaff(null);
@@ -27,8 +32,10 @@ const Staff = () => {
         return <AddStaff onSuccess={handleBackToList} onBack={handleBackToList} />;
       case 'edit':
         return <EditStaff staff={editingStaff} onSuccess={handleBackToList} onBack={handleBackToList} />;
+      case 'salary':
+        return <SalaryManagement onBack={handleBackToList} />;
       default:
-        return <StaffList onAdd={handleAddStaff} onEdit={handleEditStaff} />;
+        return <StaffList onAdd={handleAddStaff} onEdit={handleEditStaff} onSalaryManagement={handleSalaryManagement} />;
     }
   };
 
