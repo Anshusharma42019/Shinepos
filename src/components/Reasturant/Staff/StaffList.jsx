@@ -372,7 +372,19 @@ const StaffList = ({ onAdd, onEdit }) => {
     try {
       const token = localStorage.getItem('token');
       const assignedAt = new Date().toISOString();
-
+      
+      console.log('Assigning overtime with data:', {
+        date: assignOvertimeModal.date,
+        startTime: assignOvertimeModal.startTime,
+        endTime: assignOvertimeModal.endTime,
+        hours: hours,
+        reason: assignOvertimeModal.reason,
+        assignedAt: assignedAt,
+        overtimeRate: assignOvertimeModal.staff.overtimeRate || 0,
+        status: 'accepted',
+        respondedAt: assignedAt
+      });
+      
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/staff/assign-overtime/${assignOvertimeModal.staff._id}`, {
         method: 'POST',
         headers: {
@@ -386,14 +398,22 @@ const StaffList = ({ onAdd, onEdit }) => {
           hours: hours,
           reason: assignOvertimeModal.reason,
           assignedAt: assignedAt,
-          overtimeRate: assignOvertimeModal.staff.overtimeRate || 0
+          overtimeRate: assignOvertimeModal.staff.overtimeRate || 0,
+          status: 'accepted',
+          respondedAt: assignedAt
         })
       });
 
       if (response.ok) {
-        alert('Overtime assigned successfully!');
+        const result = await response.json();
+        console.log('Assign overtime response:', result);
+        alert('Overtime assigned and auto-accepted successfully!');
         setAssignOvertimeModal({ show: false, staff: null, date: '', startTime: '', endTime: '', hours: '', reason: '' });
         fetchAllOvertimeRecords(); // Refresh summary data
+      } else {
+        const errorData = await response.json();
+        console.error('Assignment failed:', errorData);
+        alert('Error assigning overtime: ' + (errorData.message || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error assigning overtime:', error);
