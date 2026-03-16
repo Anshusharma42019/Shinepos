@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiAward, FiBarChart2, FiDollarSign, FiUsers, FiUser, FiMail, FiPhone, FiCalendar, FiEdit2, FiTrash2, FiPlus, FiLoader, FiCheckCircle, FiXCircle, FiClock } from 'react-icons/fi';
 
-const StaffList = ({ onAdd, onEdit }) => {
+const StaffList = ({ onAdd, onEdit, onSalaryManagement }) => {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [staffCheckInStatus, setStaffCheckInStatus] = useState({});
@@ -444,7 +444,14 @@ const StaffList = ({ onAdd, onEdit }) => {
 
   return (
     <div className="p-6">
-      <div className="flex justify-end items-center mb-6">
+      <div className="flex justify-end items-center mb-6 gap-3">
+        <button
+          onClick={onSalaryManagement}
+          className="px-6 py-3 bg-green-500/80 backdrop-blur-md hover:bg-green-600 text-white rounded-xl flex items-center space-x-2 font-medium transition-all border border-green-500/40"
+        >
+          <FiDollarSign />
+          <span>Salary Management</span>
+        </button>
         <button
           onClick={onAdd}
           className="px-6 py-3 bg-white/30 backdrop-blur-md hover:bg-white/40 text-white rounded-xl flex items-center space-x-2 font-medium transition-all border border-white/40"
