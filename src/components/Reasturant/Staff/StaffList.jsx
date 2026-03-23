@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiAward, FiBarChart2, FiDollarSign, FiUsers, FiUser, FiMail, FiPhone, FiCalendar, FiEdit2, FiTrash2, FiPlus, FiLoader, FiCheckCircle, FiXCircle, FiClock } from 'react-icons/fi';
-const StaffList = ({ onAdd, onEdit }) => {
+const StaffList = ({ onAdd, onEdit, onSalaryManagement }) => {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [staffCheckInStatus, setStaffCheckInStatus] = useState({});
