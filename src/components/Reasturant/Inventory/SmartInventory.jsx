@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { FiTrendingDown, FiAlertTriangle, FiPlus } from 'react-icons/fi';
+import { FiTrendingDown, FiAlertTriangle, FiPlus, FiBook } from 'react-icons/fi';
 import WastageTracking from './WastageTracking';
 import StockPrediction from './StockPrediction';
+import RecipeDeduction from './RecipeDeduction';
 
 const SmartInventory = () => {
-  const [activeTab, setActiveTab] = useState('wastage');
+  const [activeTab, setActiveTab] = useState('recipes');
   const [smartAlerts, setSmartAlerts] = useState([]);
   const [showAddWastage, setShowAddWastage] = useState(false);
 
   const tabs = [
+    { id: 'recipes', label: 'Recipes', icon: FiBook, component: RecipeDeduction },
     { id: 'wastage', label: 'Wastage Tracking', icon: FiTrendingDown, component: WastageTracking },
     { id: 'prediction', label: 'Stock Prediction', icon: FiAlertTriangle, component: StockPrediction }
   ];

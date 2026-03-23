@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { FiTrendingUp, FiPieChart, FiUsers, FiClock, FiFileText, FiBarChart } from 'react-icons/fi';
+import { FiTrendingUp, FiPieChart, FiUsers, FiClock, FiFileText, FiBarChart, FiPackage } from 'react-icons/fi';
 import SalesReport from './SalesReport';
 import ItemAnalysis from './ItemAnalysis';
 import StaffPerformance from './StaffPerformance';
 import PeakHours from './PeakHours';
 import TaxReports from './TaxReports';
 import ProfitLoss from './ProfitLoss';
+import InventoryStockLog from './InventoryStockLog';
 
 const Reports = () => {
   const [activeTab, setActiveTab] = useState('sales');
@@ -16,7 +17,8 @@ const Reports = () => {
     { id: 'staff', label: 'Staff Performance', icon: FiUsers, component: StaffPerformance },
     { id: 'peak', label: 'Peak Hours', icon: FiClock, component: PeakHours },
     { id: 'tax', label: 'Tax Reports', icon: FiFileText, component: TaxReports },
-    { id: 'pl', label: 'P&L Statement', icon: FiBarChart, component: ProfitLoss }
+    { id: 'pl', label: 'P&L Statement', icon: FiBarChart, component: ProfitLoss },
+    { id: 'stocklog', label: 'Inventory Logs', icon: FiPackage, component: InventoryStockLog }
   ];
 
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component;

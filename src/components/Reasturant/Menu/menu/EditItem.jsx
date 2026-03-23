@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useCategory } from '../Category/hooks/useCategory';
-import { FiCircle } from 'react-icons/fi';
+import { FiCircle, FiTrash2, FiPlus } from 'react-icons/fi';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const EditItem = ({ item, onSuccess, onBack }) => {
   const { categories } = useCategory();
@@ -16,8 +18,10 @@ const EditItem = ({ item, onSuccess, onBack }) => {
   });
   const [availableAddons, setAvailableAddons] = useState([]);
   const [availableVariations, setAvailableVariations] = useState([]);
+  const [availableInventory, setAvailableInventory] = useState([]);
   const [selectedAddons, setSelectedAddons] = useState([]);
   const [selectedVariations, setSelectedVariations] = useState([]);
+  const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchAddon, setSearchAddon] = useState('');
   const [searchVariation, setSearchVariation] = useState('');
@@ -27,108 +31,118 @@ const EditItem = ({ item, onSuccess, onBack }) => {
   useEffect(() => {
     fetchAddons();
     fetchVariations();
+    fetchInventory();
   }, []);
 
+  // Pre-fill form + load existing recipe when item changes
   useEffect(() => {
-    if (item) {
-      setFormData({
-        itemName: item.itemName || '',
-        categoryID: item.categoryID?._id || item.categoryID || '',
-        status: item.status || 'active',
-        imageUrl: item.imageUrl || '',
-        videoUrl: item.videoUrl || '',
-        timeToPrepare: item.timeToPrepare || '',
-        foodType: item.foodType || 'veg',
-        marginCostPercentage: item.marginCostPercentage ?? 40
-      });
-      setSelectedAddons(item.addon ? item.addon.map(a => (typeof a === 'object' ? a._id : a).toString()) : []);
-      setSelectedVariations(item.variation ? item.variation.map(v => (typeof v === 'object' ? v._id : v).toString()) : []);
-    }
+    if (!item) return;
+    setFormData({
+      itemName: item.itemName || '',
+      categoryID: item.categoryID?._id || item.categoryID || '',
+      status: item.status || 'active',
+      imageUrl: item.imageUrl || '',
+      videoUrl: item.videoUrl || '',
+      timeToPrepare: item.timeToPrepare || '',
+      foodType: item.foodType || 'veg',
+      marginCostPercentage: item.marginCostPercentage ?? 40
+    });
+    setSelectedAddons(item.addon ? item.addon.map(a => (typeof a === 'object' ? a._id : a).toString()) : []);
+    setSelectedVariations(item.variation ? item.variation.map(v => (typeof v === 'object' ? v._id : v).toString()) : []);
+    fetchItemRecipe(item._id);
   }, [item?._id]);
+
+  const fetchItemRecipe = async (itemId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE_URL}/api/menus/get/menu-item/${itemId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const existing = data.menuItem?.ingredients || [];
+        // Normalize: inventoryItemId may be an object or string
+        setIngredients(existing.map(ing => ({
+          inventoryItemId: typeof ing.inventoryItemId === 'object' ? ing.inventoryItemId._id : ing.inventoryItemId,
+          quantity: ing.quantity,
+          unit: ing.unit
+        })));
+      }
+    } catch (e) { console.error(e); }
+  };
 
   const fetchAddons = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/addon/all/addon`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setAvailableAddons(data.addons || []);
-      }
-    } catch (error) {
-      console.error('Error fetching addons:', error);
-    }
+      const res = await fetch(`${API_BASE_URL}/api/addon/all/addon`, { headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) setAvailableAddons((await res.json()).addons || []);
+    } catch (e) { console.error(e); }
   };
 
   const fetchVariations = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/variation/all/variation`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setAvailableVariations(data.variations || []);
-      }
-    } catch (error) {
-      console.error('Error fetching variations:', error);
-    }
+      const res = await fetch(`${API_BASE_URL}/api/variation/all/variation`, { headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) setAvailableVariations((await res.json()).variations || []);
+    } catch (e) { console.error(e); }
   };
 
-  const uploadToCloudinary = async (file, type) => {
+  const fetchInventory = async () => {
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/upload/media`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
-      });
+      const res = await fetch(`${API_BASE_URL}/api/inventory/all/inventory/items`, { headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) setAvailableInventory((await res.json()).inventory || []);
+    } catch (e) { console.error(e); }
+  };
 
-      if (!response.ok) {
-        const error = await response.json();
-        console.error('Upload error:', error);
-        throw new Error(error.error || 'Upload failed');
-      }
-      const data = await response.json();
-      return data.url;
-    } catch (error) {
-      console.error('Upload exception:', error);
-      throw error;
-    }
+  const uploadToCloudinary = async (file) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API_BASE_URL}/api/upload/media`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: fd
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'Upload failed');
+    return (await res.json()).url;
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleAddonChange = (addonId, checked) => {
-    setSelectedAddons(checked ? [...selectedAddons, addonId] : selectedAddons.filter(id => id !== addonId));
+  const handleAddonChange = (id, checked) =>
+    setSelectedAddons(checked ? [...selectedAddons, id] : selectedAddons.filter(x => x !== id));
+
+  const handleVariationChange = (id, checked) =>
+    setSelectedVariations(checked ? [...selectedVariations, id] : selectedVariations.filter(x => x !== id));
+
+  const addIngredient = () =>
+    setIngredients(prev => [...prev, { inventoryItemId: '', quantity: '', unit: '' }]);
+
+  const updateIngredient = (index, field, value) =>
+    setIngredients(prev => prev.map((ing, i) => i === index ? { ...ing, [field]: value } : ing));
+
+  const handleInventorySelect = (index, inventoryItemId) => {
+    const invItem = availableInventory.find(i => i._id === inventoryItemId);
+    setIngredients(prev => prev.map((ing, i) =>
+      i === index ? { ...ing, inventoryItemId, unit: invItem?.unit || '' } : ing
+    ));
   };
 
-  const handleVariationChange = (variationId, checked) => {
-    setSelectedVariations(checked ? [...selectedVariations, variationId] : selectedVariations.filter(id => id !== variationId));
-  };
+  const removeIngredient = (index) =>
+    setIngredients(prev => prev.filter((_, i) => i !== index));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/menus/update/menu-item/${item._id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/menus/update/menu-item/${item._id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           itemName: formData.itemName,
           categoryID: formData.categoryID,
@@ -139,17 +153,15 @@ const EditItem = ({ item, onSuccess, onBack }) => {
           foodType: formData.foodType,
           addon: selectedAddons,
           variation: selectedVariations,
-          marginCostPercentage: Number(formData.marginCostPercentage)
+          marginCostPercentage: Number(formData.marginCostPercentage),
+          ingredients: ingredients.filter(i => i.inventoryItemId && i.quantity)
         })
       });
-
-      if (response.ok) {
-        const data = await response.json();
+      if (res.ok) {
         alert('Item updated successfully!');
-        if (onSuccess) onSuccess(data.menuItem);
+        if (onSuccess) onSuccess((await res.json()).menuItem);
       } else {
-        const data = await response.json();
-        alert(data.error || 'Failed to update item');
+        alert((await res.json()).error || 'Failed to update item');
       }
     } catch (error) {
       alert('Error updating item');
@@ -157,66 +169,46 @@ const EditItem = ({ item, onSuccess, onBack }) => {
     setLoading(false);
   };
 
-  const filteredAddons = availableAddons.filter(addon => 
-    addon.name.toLowerCase().includes(searchAddon.toLowerCase())
-  );
+  const filteredAddons = availableAddons.filter(a => a.name.toLowerCase().includes(searchAddon.toLowerCase()));
+  const filteredVariations = availableVariations.filter(v => v.name.toLowerCase().includes(searchVariation.toLowerCase()));
 
-  const filteredVariations = availableVariations.filter(variation => 
-    variation.name.toLowerCase().includes(searchVariation.toLowerCase())
-  );
+  const inputCls = 'w-full bg-white/30 backdrop-blur-md border border-white/40 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900';
+  const cardCls = 'bg-white/10 backdrop-blur-xl rounded-2xl p-6';
 
   return (
     <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fadeIn">
-      {/* Left Side - Addons & Variations */}
+      {/* Left Side - Addons, Variations & Ingredients */}
       <div className="lg:col-span-1 space-y-6">
         {/* Addons */}
-        <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6">
+        <div className={cardCls}>
           <h3 className="text-lg font-bold text-gray-900 mb-4">Addons</h3>
-          <input
-            type="text"
-            placeholder="Search addons..."
-            value={searchAddon}
-            onChange={(e) => setSearchAddon(e.target.value)}
-            className="w-full bg-white/30 backdrop-blur-md border border-white/40 rounded-xl px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 placeholder-gray-600"
-          />
-          <div className="space-y-2 max-h-[300px] overflow-y-auto">
+          <input type="text" placeholder="Search addons..." value={searchAddon}
+            onChange={e => setSearchAddon(e.target.value)} className={`${inputCls} mb-4`} />
+          <div className="space-y-2 max-h-[250px] overflow-y-auto">
             {filteredAddons.map(addon => (
-              <label key={addon._id} className="flex items-center space-x-3 p-3 bg-white/30 backdrop-blur-md rounded-xl cursor-pointer hover:bg-white/40 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={selectedAddons.includes(addon._id.toString())}
-                  onChange={(e) => handleAddonChange(addon._id.toString(), e.target.checked)}
-                  className="w-4 h-4"
-                />
+              <label key={addon._id} className="flex items-center space-x-3 p-3 bg-white/30 rounded-xl cursor-pointer hover:bg-white/40 transition-colors">
+                <input type="checkbox" checked={selectedAddons.includes(addon._id.toString())}
+                  onChange={e => handleAddonChange(addon._id.toString(), e.target.checked)} className="w-4 h-4" />
                 <div className="flex-1">
                   <div className="font-medium text-gray-900">{addon.name}</div>
                   <div className="text-sm text-gray-700">₹{addon.price}</div>
                 </div>
-                <span><FiCircle className={`${addon.veg ? 'text-green-500 fill-green-500' : 'text-red-500 fill-red-500'}`} size={12} /></span>
+                <FiCircle className={addon.veg ? 'text-green-500 fill-green-500' : 'text-red-500 fill-red-500'} size={12} />
               </label>
             ))}
           </div>
         </div>
 
         {/* Variations */}
-        <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6">
+        <div className={cardCls}>
           <h3 className="text-lg font-bold text-gray-900 mb-4">Variations</h3>
-          <input
-            type="text"
-            placeholder="Search variations..."
-            value={searchVariation}
-            onChange={(e) => setSearchVariation(e.target.value)}
-            className="w-full bg-white/30 backdrop-blur-md border border-white/40 rounded-xl px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900 placeholder-gray-600"
-          />
-          <div className="space-y-2 max-h-[300px] overflow-y-auto">
+          <input type="text" placeholder="Search variations..." value={searchVariation}
+            onChange={e => setSearchVariation(e.target.value)} className={`${inputCls} mb-4`} />
+          <div className="space-y-2 max-h-[250px] overflow-y-auto">
             {filteredVariations.map(variation => (
-              <label key={variation._id} className="flex items-center space-x-3 p-3 bg-white/30 backdrop-blur-md rounded-xl cursor-pointer hover:bg-white/40 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={selectedVariations.includes(variation._id.toString())}
-                  onChange={(e) => handleVariationChange(variation._id.toString(), e.target.checked)}
-                  className="w-4 h-4"
-                />
+              <label key={variation._id} className="flex items-center space-x-3 p-3 bg-white/30 rounded-xl cursor-pointer hover:bg-white/40 transition-colors">
+                <input type="checkbox" checked={selectedVariations.includes(variation._id.toString())}
+                  onChange={e => handleVariationChange(variation._id.toString(), e.target.checked)} className="w-4 h-4" />
                 <div className="flex-1">
                   <div className="font-medium text-gray-900">{variation.name}</div>
                   <div className="text-sm text-gray-700">₹{variation.price}</div>
@@ -225,186 +217,155 @@ const EditItem = ({ item, onSuccess, onBack }) => {
             ))}
           </div>
         </div>
+
+        {/* Inventory Ingredients */}
+        <div className={cardCls}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold text-gray-900">Inventory Ingredients</h3>
+            <button type="button" onClick={addIngredient}
+              className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors">
+              <FiPlus size={14} /> Add
+            </button>
+          </div>
+          {ingredients.length === 0 && (
+            <p className="text-sm text-gray-600 text-center py-3">No ingredients linked. Click Add to set inventory deductions.</p>
+          )}
+          <div className="space-y-3">
+            {ingredients.map((ing, index) => (
+              <div key={index} className="bg-white/30 rounded-xl p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-700">Ingredient {index + 1}</span>
+                  <button type="button" onClick={() => removeIngredient(index)}
+                    className="text-red-500 hover:text-red-700 transition-colors">
+                    <FiTrash2 size={14} />
+                  </button>
+                </div>
+                <select value={ing.inventoryItemId}
+                  onChange={e => handleInventorySelect(index, e.target.value)}
+                  className="w-full bg-white/60 border border-white/50 rounded-lg px-3 py-1.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                  <option value="">Select inventory item</option>
+                  {availableInventory.map(invItem => (
+                    <option key={invItem._id} value={invItem._id}>{invItem.name} ({invItem.unit})</option>
+                  ))}
+                </select>
+                <div className="flex gap-2">
+                  <input type="number" placeholder="Qty" min="0" step="0.01"
+                    value={ing.quantity}
+                    onChange={e => updateIngredient(index, 'quantity', e.target.value)}
+                    className="w-2/3 bg-white/60 border border-white/50 rounded-lg px-3 py-1.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                  <input type="text" placeholder="Unit" value={ing.unit} readOnly
+                    className="w-1/3 bg-white/20 border border-white/40 rounded-lg px-3 py-1.5 text-sm text-gray-600" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Right Side - Item Details */}
-      <div className="lg:col-span-2 space-y-6 animate-slideIn" style={{ animationDelay: '0.2s' }}>
-        {/* Basic Information */}
-        <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6">
+      <div className="lg:col-span-2 space-y-6">
+        <div className={cardCls}>
           <h3 className="text-lg font-bold text-gray-900 mb-4">Item Details</h3>
-          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-1">Item Name *</label>
-              <input
-                type="text"
-                name="itemName"
-                value={formData.itemName}
-                onChange={handleInputChange}
-                className="w-full bg-white/30 backdrop-blur-md border border-white/40 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
-                required
-              />
+              <input type="text" name="itemName" value={formData.itemName}
+                onChange={handleInputChange} className={inputCls} required />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-1">Category *</label>
-              <select
-                name="categoryID"
-                value={formData.categoryID}
-                onChange={handleInputChange}
-                className="w-full bg-white/30 backdrop-blur-md border border-white/40 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
-                required
-              >
+              <select name="categoryID" value={formData.categoryID}
+                onChange={handleInputChange} className={inputCls} required>
                 <option value="">Select Category</option>
-                {categories.map(category => (
-                  <option key={category._id} value={category._id}>{category.name}</option>
-                ))}
+                {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
               </select>
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-1">Status</label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleInputChange}
-                className="w-full bg-white/30 backdrop-blur-md border border-white/40 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
-              >
+              <select name="status" value={formData.status} onChange={handleInputChange} className={inputCls}>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
                 <option value="out-of-stock">Out of Stock</option>
               </select>
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-1">Food Type</label>
-              <select
-                name="foodType"
-                value={formData.foodType}
-                onChange={handleInputChange}
-                className="w-full bg-white/30 backdrop-blur-md border border-white/40 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
-              >
+              <select name="foodType" value={formData.foodType} onChange={handleInputChange} className={inputCls}>
                 <option value="veg">Vegetarian</option>
                 <option value="nonveg">Non-Vegetarian</option>
               </select>
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-1">Time to Prepare (min) *</label>
-              <input
-                type="number"
-                name="timeToPrepare"
-                value={formData.timeToPrepare}
-                onChange={handleInputChange}
-                className="w-full bg-white/30 backdrop-blur-md border border-white/40 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
-                min="1"
-                required
-              />
+              <input type="number" name="timeToPrepare" value={formData.timeToPrepare}
+                onChange={handleInputChange} className={inputCls} min="1" required />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-1">Margin Cost % *</label>
-              <input
-                type="number"
-                name="marginCostPercentage"
-                value={formData.marginCostPercentage}
-                onChange={handleInputChange}
-                className="w-full bg-white/30 backdrop-blur-md border border-white/40 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
-                min="0"
-                max="100"
-                required
-              />
+              <input type="number" name="marginCostPercentage" value={formData.marginCostPercentage}
+                onChange={handleInputChange} className={inputCls} min="0" max="100" required />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-1">Image</label>
-              <input
-                type="file"
-                accept="image/*"
+              <input type="file" accept="image/*" disabled={uploadingImage} className={inputCls}
                 onChange={async (e) => {
                   const file = e.target.files[0];
-                  if (file) {
-                    setUploadingImage(true);
-                    try {
-                      const url = await uploadToCloudinary(file, 'image');
-                      setFormData(prev => ({ ...prev, imageUrl: url }));
-                    } catch (error) {
-                      alert('Failed to upload image');
-                    }
-                    setUploadingImage(false);
-                  }
-                }}
-                disabled={uploadingImage}
-                className="w-full bg-white/30 backdrop-blur-md border border-white/40 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
-              />
+                  if (!file) return;
+                  setUploadingImage(true);
+                  try {
+                    const url = await uploadToCloudinary(file);
+                    setFormData(prev => ({ ...prev, imageUrl: url }));
+                  } catch (err) { alert('Failed to upload image'); }
+                  setUploadingImage(false);
+                }} />
               {uploadingImage && <p className="text-sm text-gray-900 mt-1">Uploading...</p>}
-              {formData.imageUrl && (
-                <div className="mt-2">
-                  <img src={formData.imageUrl} alt="Preview" className="w-full h-32 object-cover rounded-xl" />
-                </div>
-              )}
+              {formData.imageUrl && <img src={formData.imageUrl} alt="Preview" className="w-full h-32 object-cover rounded-xl mt-2" />}
             </div>
-
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-900 mb-1">Video</label>
-              <input
-                type="file"
-                accept="video/*"
+              <input type="file" accept="video/*" disabled={uploadingVideo} className={inputCls}
                 onChange={async (e) => {
                   const file = e.target.files[0];
-                  if (file) {
-                    setUploadingVideo(true);
-                    try {
-                      const url = await uploadToCloudinary(file, 'video');
-                      setFormData(prev => ({ ...prev, videoUrl: url }));
-                    } catch (error) {
-                      alert('Failed to upload video');
-                    }
-                    setUploadingVideo(false);
-                  }
-                }}
-                disabled={uploadingVideo}
-                className="w-full bg-white/30 backdrop-blur-md border border-white/40 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
-              />
+                  if (!file) return;
+                  setUploadingVideo(true);
+                  try {
+                    const url = await uploadToCloudinary(file);
+                    setFormData(prev => ({ ...prev, videoUrl: url }));
+                  } catch (err) { alert('Failed to upload video'); }
+                  setUploadingVideo(false);
+                }} />
               {uploadingVideo && <p className="text-sm text-gray-900 mt-1">Uploading...</p>}
-              {formData.videoUrl && (
-                <div className="mt-2">
-                  <video src={formData.videoUrl} controls className="w-full h-32 rounded-xl" />
-                </div>
-              )}
+              {formData.videoUrl && <video src={formData.videoUrl} controls className="w-full h-32 rounded-xl mt-2" />}
             </div>
           </div>
         </div>
 
-        {/* Selected Summary */}
-        <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6">
+        {/* Summary */}
+        <div className={cardCls}>
           <h3 className="text-lg font-bold text-gray-900 mb-4">Summary</h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <span className="text-gray-700">Selected Addons:</span>
+              <span className="text-gray-700">Addons:</span>
               <span className="ml-2 font-bold text-gray-900">{selectedAddons.length}</span>
             </div>
             <div>
-              <span className="text-gray-700">Selected Variations:</span>
+              <span className="text-gray-700">Variations:</span>
               <span className="ml-2 font-bold text-gray-900">{selectedVariations.length}</span>
+            </div>
+            <div>
+              <span className="text-gray-700">Ingredients:</span>
+              <span className="ml-2 font-bold text-green-700">{ingredients.filter(i => i.inventoryItemId && i.quantity).length}</span>
             </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex justify-end space-x-4">
-          <button
-            type="button"
-            onClick={onBack}
-            className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl transition-colors"
-          >
+          <button type="button" onClick={onBack}
+            className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl transition-colors">
             ← Back
           </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button type="submit" disabled={loading}
+            className="px-6 py-2 bg-white/30 backdrop-blur-md hover:bg-white/40 text-gray-900 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             {loading ? 'Updating...' : 'Update Item'}
           </button>
         </div>
